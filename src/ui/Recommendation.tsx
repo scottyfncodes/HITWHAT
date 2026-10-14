@@ -8,6 +8,17 @@ import { localTake } from '../core/voice';
 
 const CONFIDENCE_TEXT = { high: 'Confident', medium: 'Good call', low: 'Tough one' } as const;
 
+/** Short names for what moved the number, shown on the answer card. The full labels are in The math. */
+const ADJ_SHORT: Record<Rec['adjustments'][number]['kind'], string> = {
+  wind: 'Wind',
+  elevation: 'Slope',
+  temperature: 'Temp',
+  altitude: 'Altitude',
+  lie: 'Lie',
+  stance: 'Stance',
+  tendency: 'Your tendency',
+};
+
 interface Props {
   result: CaddieResult;
   units: Units;
@@ -48,7 +59,7 @@ function personalLine(rec: Rec, stat: ClubDistanceStat | null, learned: boolean,
 
 function Answer({ rec, units, advice, clubStat, learned, usePersonalLine }: Omit<Props, 'result' | 'onFocusField'> & { rec: Rec }) {
   const unit = distanceLabel(units.distance);
-  const { total, distance } = displayMath(rec, units);
+  const { total, distance, rows } = displayMath(rec, units);
   const personal = usePersonalLine ? personalLine(rec, clubStat, learned, units) : null;
   const strategic = advice && (advice.why || advice.aim !== 'Aim at the flag.');
   const line = strategic ? [advice!.aim, advice!.why, personal].filter(Boolean).join(' ') : [localTake(rec, units), personal].filter(Boolean).join(' ');
@@ -71,6 +82,15 @@ function Answer({ rec, units, advice, clubStat, learned, usePersonalLine }: Omit
       <p class="hero-take" data-testid="local-take">
         “{line}”
       </p>
+      {rows.length > 0 && (
+        <ul class="adj-chips" aria-label={`Plays ${total} ${unit}: what changed it`} data-testid="adjustments">
+          {rows.map((r) => (
+            <li key={r.kind} class={r.shown > 0 ? 'plus' : 'minus'}>
+              {ADJ_SHORT[r.kind]} <strong>{r.shown > 0 ? '+' : '−'}{Math.abs(r.shown)}</strong>
+            </li>
+          ))}
+        </ul>
+      )}
       <dl class="hero-stats">
         <div>
           <dt>Plays like</dt>
@@ -111,6 +131,13 @@ function Answer({ rec, units, advice, clubStat, learned, usePersonalLine }: Omit
         <p class="hero-note" data-testid="safe-miss">
           {advice.safeMiss}
         </p>
+      )}
+      {rec.notes.length > 0 && (
+        <ul class="hero-cautions" aria-label="Keep in mind" data-testid="cautions">
+          {rec.notes.map((n) => (
+            <li key={n}>{n}</li>
+          ))}
+        </ul>
       )}
       {rec.alternatives.length > 0 && (
         <ul class="alts" aria-label="Other options">
@@ -170,13 +197,6 @@ export function WhyPanel({ rec, units, learned }: { rec: Rec; units: Units; lear
           </tr>
         </tbody>
       </table>
-      {rec.notes.length > 0 && (
-        <ul class="notes">
-          {rec.notes.map((n) => (
-            <li key={n}>{n}</li>
-          ))}
-        </ul>
-      )}
     </details>
   );
 }

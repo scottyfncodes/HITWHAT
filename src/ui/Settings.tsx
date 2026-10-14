@@ -44,7 +44,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
     setProfile({ ...r.profile, onboarded: true });
     updateGolf(() => r.golf);
     for (const s of r.swings) await saveSwing(s, null).catch(() => {});
-    setRestoreMsg(`Restored ${r.golf.rounds.length} rounds, ${r.golf.shots.length} shots and ${r.swings.length} swing analyses.`);
+    setRestoreMsg(`Restored ${r.golf.rounds.length} rounds, ${r.golf.shots.length} shots, ${r.golf.practice.length} practice sessions and ${r.swings.length} swing analyses.`);
   };
 
   const addShot = (clubId: string, distanceYds: number, full: boolean) => {
@@ -235,7 +235,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
             <input type="file" accept="application/json,.json" hidden onChange={(e) => { const f = (e.currentTarget as HTMLInputElement).files?.[0]; if (f) void importBackup(f); }} />
           </label>
         </div>
-        <p class="fine">Backups include rounds, courses, shots, settings and swing analyses (not the videos). Keep one in Files or iCloud Drive to move to a new phone.</p>
+        <p class="fine">Backups include rounds, courses, shots, practice sessions, settings and swing analyses (not the videos). Keep one in Files or iCloud Drive to move to a new phone.</p>
         {restoreMsg && (
           <p class="banner" role="status">
             {restoreMsg}
@@ -252,7 +252,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
               class="btn danger"
               onClick={() => {
                 setProfile({ ...defaultProfile(), onboarded: true });
-                updateGolf(() => ({ rounds: [], courses: [], shots: [] }));
+                updateGolf(() => ({ rounds: [], courses: [], shots: [], practice: [] }));
                 void clearSwings().catch(() => {});
                 setConfirmReset(false);
               }}

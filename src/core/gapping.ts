@@ -137,7 +137,7 @@ export function practicePlan(rows: readonly LadderRow[], text: PlanText = DEFAUL
             kind: 'gap',
             clubIds: [worst.r.club.id, worst.next.club.id],
             title: `Fill the ${dist(g)} gap`,
-            detail: `Between ${a} (${dist(worst.r.number)}) and ${b} (${dist(worst.next.number)}) you have no full swing. Practise a smooth ${a} to about ${dist((worst.r.number + worst.next.number) / 2)}.`,
+            detail: `Between ${a} (${dist(worst.r.number)}) and ${b} (${dist(worst.next.number)}) you have no full swing. Practice a smooth ${a} to about ${dist((worst.r.number + worst.next.number) / 2)}.`,
           }
         : {
             kind: 'gap',

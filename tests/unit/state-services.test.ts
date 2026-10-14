@@ -11,7 +11,7 @@ import { manual, played } from './rounds';
 describe('golf data persistence', () => {
   it('round-trips rounds, courses and shots', () => {
     const store = memoryStore();
-    const data = { rounds: [played(2), manual(90)], courses: [], shots: [] };
+    const data = { rounds: [played(2), manual(90)], courses: [], shots: [], practice: [] };
     expect(saveGolf(data, store)).toBe(true);
     const back = loadGolf(store);
     expect(back.rounds).toHaveLength(2);
@@ -55,7 +55,7 @@ describe('golf data persistence', () => {
 
 describe('backup', () => {
   it('round-trips and rejects other files', () => {
-    const text = JSON.stringify(buildBackup(defaultProfile(), { rounds: [played(1)], courses: [], shots: [] }, [], 5));
+    const text = JSON.stringify(buildBackup(defaultProfile(), { rounds: [played(1)], courses: [], shots: [], practice: [] }, [], 5));
     const r = parseBackup(text);
     expect(r.ok).toBe(true);
     if (r.ok) expect(r.golf.rounds).toHaveLength(1);
@@ -64,7 +64,7 @@ describe('backup', () => {
   });
 
   it('restores backups made before the HitWhat rename', () => {
-    const old = { ...buildBackup(defaultProfile(), { rounds: [played(1)], courses: [], shots: [] }, [], 5), format: 'caddaie-backup' };
+    const old = { ...buildBackup(defaultProfile(), { rounds: [played(1)], courses: [], shots: [], practice: [] }, [], 5), format: 'caddaie-backup' };
     const r = parseBackup(JSON.stringify(old));
     expect(r.ok).toBe(true);
     if (r.ok) expect(r.golf.rounds[0].source).toBe('app');
