@@ -54,7 +54,7 @@ function serviceWorker(): Plugin {
 }
 
 export default defineConfig({
-  // GitHub Pages serves the app from the repo path (/CADDAIE/); hitwhat.com would serve it
+  // GitHub Pages serves the app from the repo path (/HITWHAT/); hitwhat.com would serve it
   // from the root. A relative base works for both.
   base: './',
   plugins: [preact(), mediapipeRuntime(), serviceWorker()],

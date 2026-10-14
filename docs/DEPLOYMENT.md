@@ -8,7 +8,7 @@ HitWhat is a static web app. There is no server, no API key and no secret anywhe
 One-time repo setup, if Pages isn't already on: **Settings → Pages → Build and deployment → Source: GitHub Actions.**
 
 The app uses a relative base (`./`), so it works at the repository's Pages path
-(`https://scottyfncodes.github.io/CADDAIE/` — the repository is still named `CADDAIE`) or at the root of a custom domain.
+(`https://scottyfncodes.github.io/HITWHAT/`) or at the root of a custom domain.
 
 ## Custom domain (hitwhat.com)
 

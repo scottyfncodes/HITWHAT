@@ -39,6 +39,8 @@ export interface AppState {
   go: (tab: Tab) => void;
   openSettings: () => void;
   openRangefinder: () => void;
+  /** Opens the range session, optionally on a club. */
+  openPractice: (clubId?: string) => void;
   shot: ShotInput;
   setShot: (fn: (s: ShotInput) => ShotInput) => void;
   pin: PinPosition | null;

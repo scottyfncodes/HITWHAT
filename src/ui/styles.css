@@ -3186,3 +3186,275 @@ details.card:not([open]) {
   font-weight: 650;
   color: var(--text-3);
 }
+
+/* A reticle with no camera image behind it means nothing, and it collided with the message. */
+.rf:has(.rf-camera-msg) .rf-reticle {
+  display: none;
+}
+
+.score-adjust output.unset {
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--text-3);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Distances: the ladder ---------- */
+
+.ladder {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.ladder-item + .ladder-item {
+  border-top: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+}
+
+.ladder-row {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+
+.ladder-club {
+  display: grid;
+  line-height: 1.1;
+}
+
+.ladder-club strong {
+  font-size: 16px;
+  font-weight: 750;
+}
+
+.ladder-club small {
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.ladder-track {
+  position: relative;
+  height: 20px;
+  border-radius: 999px;
+  background: linear-gradient(var(--line), var(--line)) center / 100% 2px no-repeat;
+}
+
+.ladder-band {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.ladder-dot {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  border: 2.5px solid var(--accent);
+  background: var(--raised);
+}
+
+.ladder-dot.tracked {
+  background: var(--accent);
+}
+
+.ladder-num {
+  text-align: right;
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.ladder-gap {
+  margin: -2px 0 8px 64px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 650;
+  width: fit-content;
+}
+
+.ladder-gap.wide {
+  color: var(--watch);
+  background: color-mix(in srgb, var(--watch) 13%, transparent);
+}
+
+.ladder-gap.overlap {
+  color: var(--bad);
+  background: color-mix(in srgb, var(--bad) 11%, transparent);
+}
+
+.ladder-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.ladder-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ladder-legend .ladder-dot,
+.ladder-legend .ladder-band {
+  position: static;
+  margin: 0;
+  display: inline-block;
+}
+
+.ladder-legend .ladder-dot {
+  width: 12px;
+  height: 12px;
+  border-width: 2px;
+}
+
+.ladder-legend .ladder-band {
+  width: 22px;
+  height: 10px;
+}
+
+/* ---------- Practice plan & range session ---------- */
+
+.plan-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.plan-step {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.plan-step > div {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+}
+
+.plan-n {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.plan-step .link {
+  min-height: 44px;
+}
+
+.range-groups {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.range-group-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.range-shots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.range-shot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 64px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--raised-2);
+  font-size: 17px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.range-shot .icon {
+  color: var(--text-3);
+}
+
+.range-shot.mishit {
+  color: var(--text-3);
+  text-decoration: line-through;
+}
+
+.tile.tile-wide {
+  grid-column: 1 / -1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  color: var(--text);
+}
+
+.tile-wide > span:nth-child(2) {
+  display: grid;
+  gap: 2px;
+}
+
+.tile-wide strong {
+  font-size: 17px;
+}
+
+.tile-wide > .icon {
+  color: var(--text-3);
+}
+
+.tile-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}

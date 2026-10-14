@@ -8,6 +8,7 @@ import { activeRound, loadGolf, saveGolf, type GolfData } from '../state/golf';
 import { loadProfile, loadSituation, safeStorage, saveProfile, saveSituation, type Profile } from '../state/profile';
 import { requestPersistence } from '../state/swings';
 import { CaddieTab } from './CaddieTab';
+import { RangeSession } from './Distances';
 import { AppContext, TABS, type AppState, type RangeResult, type Tab } from './context';
 import { HandicapTab } from './HandicapTab';
 import { Icon } from './kit';
@@ -42,6 +43,7 @@ export function App() {
   const [tab, setTab] = useState<Tab>(tabFromHash);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [rangeOpen, setRangeOpen] = useState(false);
+  const [practice, setPractice] = useState<{ club: string | null } | null>(null);
   const [storageOk, setStorageOk] = useState(storage !== null);
 
   useEffect(() => {
@@ -102,6 +104,7 @@ export function App() {
     go,
     openSettings: () => setSettingsOpen(true),
     openRangefinder: () => setRangeOpen(true),
+    openPractice: (clubId?: string) => setPractice({ club: clubId ?? null }),
     shot,
     setShot,
     pin,
@@ -168,6 +171,7 @@ export function App() {
         </nav>
 
         {settingsOpen && <Settings onClose={() => setSettingsOpen(false)} />}
+        {practice && <RangeSession startClub={practice.club} onClose={() => setPractice(null)} />}
         {rangeOpen && (
           <Rangefinder
             onClose={() => setRangeOpen(false)}
