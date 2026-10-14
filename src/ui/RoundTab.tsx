@@ -37,7 +37,7 @@ export function RoundTab() {
 }
 
 function RoundHome({ onOpen }: { onOpen: (id: string) => void }) {
-  const { golf, handicap, profile, go, openPractice } = useApp();
+  const { golf, handicap, profile, go } = useApp();
   const [starting, setStarting] = useState(false);
   const [adding, setAdding] = useState(false);
   const done = golf.rounds.filter((r) => r.status === 'complete').sort((a, b) => b.date - a.date);
@@ -68,13 +68,13 @@ function RoundHome({ onOpen }: { onOpen: (id: string) => void }) {
           <span class="stat-value">{stats.scoringAvg !== null ? stats.scoringAvg.toFixed(1) : '—'}</span>
           <span class="stat-sub">{stats.rounds ? `${stats.rounds} round${stats.rounds === 1 ? '' : 's'}` : 'No rounds yet'}</span>
         </button>
-        <button type="button" class="tile tile-wide" onClick={() => openPractice()} data-testid="tile-practice">
+        <button type="button" class="tile tile-wide" onClick={() => go('practice')} data-testid="tile-practice">
           <span class="tile-icon" aria-hidden="true">
             <Icon name="caddie" />
           </span>
           <span>
-            <strong>Range session</strong>
-            <span class="stat-sub">Log carries, see your gaps</span>
+            <strong>Practice</strong>
+            <span class="stat-sub">Putting and wedge drills, range session, your distances</span>
           </span>
           <Icon name="chevron" size={18} />
         </button>

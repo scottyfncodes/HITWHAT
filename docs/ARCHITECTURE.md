@@ -41,6 +41,16 @@ hole plan's tee-shot length instead.
 over 18 yds (25 after a driver or wood). `practicePlan` turns that into at most three range jobs, each a literal
 reading of the ladder. Range-session shots are stored as `manual` shot records, so they feed the same loop.
 
+`core/practice.ts` defines the drills, scores a session (success % for putting and the ladder, mean carry spread for
+the wedge carry check), compares the latest session with the average of up to three before it (needing a 15-point
+or 1.5-yd change to call it better or worse), and picks drills from the data (`drillAdvice`): lag putting when
+three-putts per round are at or above the benchmark for the golfer's scoring level, the short-putt circle when
+putts per round run 1+ above it without many three-putts, the wedge carry check while any wedge has fewer than 5
+logged shots, and the wedge ladder for a wide gap around the wedges or approach play rated "watch". Putting advice
+needs 3+ rounds with putts recorded; otherwise drills are labelled starters. Sessions are stored as
+`caddaie.practice` beside rounds and shots (sanitised on read, included in backups, missing in older backups =
+none). Wedge carry checks also add their carries as `manual` shot records, so they feed the same learning loop.
+
 Round history feeds `insights` (Stats), `holePlan` (fairway-miss pattern, scoring history on that hole) and
 `handicapReport` (which feeds `targetAdvice`: tucked pins are attacked only by single-digit players with a scoring
 club).

@@ -16,6 +16,13 @@ async function seed(page: Page, patch: Record<string, unknown> = {}, extra: Reco
 
 const distance = (page: Page) => page.getByRole('textbox', { name: /Distance to target/ });
 
+/** Wind, slope, lie, stance, air and the green live in the Conditions card, collapsed until needed. */
+async function openConditions(page: Page) {
+  const toggle = page.getByTestId('conditions-toggle');
+  if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+}
+
 test.describe('first load', () => {
   test('explains HitWhat in one screen, then remembers', async ({ page }) => {
     await page.goto('./');
@@ -70,6 +77,7 @@ test.describe('caddie', () => {
 
   test('wind and elevation change the club, and the math adds up on screen', async ({ page }) => {
     await distance(page).fill('150');
+    await openConditions(page);
     await page.getByRole('radio', { name: 'Into your face' }).click();
     await page.getByRole('radiogroup', { name: 'Quick wind speed' }).getByRole('radio', { name: '10' }).click();
     await page.getByRole('button', { name: 'Increase Elevation change' }).click();
@@ -92,6 +100,7 @@ test.describe('caddie', () => {
   test('trouble changes strategy and the safest miss', async ({ page }) => {
     await distance(page).fill('154');
     await expect(page.getByTestId('club')).toHaveText('7 Iron');
+    await openConditions(page);
     await page.getByRole('button', { name: 'Short', exact: true }).click();
     await expect(page.getByTestId('club')).toHaveText('6 Iron');
     await page.getByRole('button', { name: 'Left', exact: true }).click();
@@ -101,6 +110,7 @@ test.describe('caddie', () => {
 
   test('pin position gives one clear aim', async ({ page }) => {
     await distance(page).fill('154');
+    await openConditions(page);
     await page.getByRole('radio', { name: 'Pin back-left' }).click();
     await expect(page.getByTestId('local-take')).toContainText('Favor the middle. Pin is back-left.');
     await expect(page.getByTestId('safe-miss')).toHaveText('Safest miss: short and right.');
@@ -116,6 +126,7 @@ test.describe('caddie', () => {
 
   test('new shot keeps conditions but clears the shot', async ({ page }) => {
     await distance(page).fill('140');
+    await openConditions(page);
     await page.getByRole('radiogroup', { name: 'Quick wind speed' }).getByRole('radio', { name: '10' }).click();
     await page.getByRole('radio', { name: 'Rough', exact: true }).click();
     await page.getByTestId('new-shot').click();
@@ -205,7 +216,8 @@ test.describe('bag, settings and persistence', () => {
   });
 
   test('backup exports everything as a file', async ({ page }) => {
-    await seed(page);
+    const session = { id: 'p1', drill: 'short-putts', at: Date.UTC(2026, 9, 1), attempts: [{ target: 3, clubId: null, outcome: 'made', carry: null }], shotIds: [] };
+    await seed(page, {}, { 'caddaie.practice': [session] });
     await page.goto('./');
     await page.getByTestId('open-settings').click();
     const [download] = await Promise.all([page.waitForEvent('download'), page.getByTestId('export-backup').click()]);
@@ -214,6 +226,7 @@ test.describe('bag, settings and persistence', () => {
     expect(json.format).toBe('hitwhat-backup');
     expect(download.suggestedFilename()).toMatch(/^hitwhat-backup-/);
     expect(json.profile.clubs.length).toBeGreaterThan(5);
+    expect(json.golf.practice).toEqual([session]);
   });
 });
 
@@ -444,6 +457,7 @@ test.describe('live conditions', () => {
     });
     await seed(page);
     await page.goto('./#caddie');
+    await openConditions(page);
     await page.getByTestId('live-weather').click();
     await expect(page.getByTestId('live-error')).toContainText('Location is off');
     await distance(page).fill('150');
@@ -459,6 +473,7 @@ test.describe('live conditions', () => {
     await seed(page);
     await page.goto('./#caddie');
     await distance(page).fill('150');
+    await openConditions(page);
     await page.getByTestId('live-weather').click();
     await expect(page.getByTestId('live-ok')).toContainText('12 mph');
     await page.getByRole('radiogroup', { name: 'Direction you are hitting' }).getByRole('radio', { name: 'N', exact: true }).click();
@@ -495,7 +510,7 @@ test.describe('offline', () => {
 test.describe('distances and practice', () => {
   test('a range session fills the ladder and the caddie switches to the real number', async ({ page }) => {
     await seed(page);
-    await page.goto('./#stats');
+    await page.goto('./#practice');
     // No rounds yet, but the bag and a practice plan still show.
     await expect(page.getByTestId('ladder-9i')).toContainText('Typed');
     await expect(page.getByTestId('practice-plan')).toContainText('Measure your 8 Iron, 9 Iron and 7 Iron');
@@ -533,8 +548,171 @@ test.describe('distances and practice', () => {
     await page.getByRole('checkbox', { name: 'Gap Wedge' }).uncheck();
     await page.getByTestId('sheet-done').click();
     await page.getByTestId('tab-stats').click();
+    await page.getByTestId('view-practice').click();
     await expect(page.getByTestId('ladder-gap')).toHaveText('28 yds gap — no full swing for this');
     await expect(page.getByTestId('practice-plan')).toContainText('Fill the 28 yds gap');
+  });
+});
+
+const PARS = [4, 4, 3, 5, 4, 4, 3, 4, 5, 4, 4, 3, 5, 4, 4, 3, 4, 5];
+/** Bogey golf with three three-putts a round: enough putting data to personalise. */
+const threePuttRounds = (n: number) =>
+  Array.from({ length: n }, (_, k) => ({
+    id: `r${k}`,
+    source: 'app',
+    status: 'complete',
+    date: Date.UTC(2026, 8, 1 + k * 5),
+    courseId: null,
+    courseName: 'Pebble Creek',
+    tee: { name: 'Blue', rating: 71.4, slope: 128, par: PARS, yardage: PARS.map(() => null), strokeIndex: PARS.map(() => null) },
+    holeCount: 18,
+    startHole: 0,
+    holes: PARS.map((p, i) => ({ strokes: p + 1, putts: i < 3 ? 3 : 2, fairway: null, gir: null, penalties: 0, teeClub: null, note: '' })),
+    manualScore: null,
+    current: 17,
+  }));
+
+test.describe('caddie layout', () => {
+  test('the answer is above the fold and conditions are summarised, then editable', async ({ page, isMobile }) => {
+    await seed(page);
+    await page.goto('./#caddie');
+    await distance(page).fill('152');
+    await expect(page.getByTestId('club')).toHaveText('7 Iron');
+    if (isMobile) {
+      const box = (await page.getByTestId('club').boundingBox())!;
+      const tabbar = (await page.locator('.tabbar').boundingBox())!;
+      expect(box.y + box.height).toBeLessThan(tabbar.y);
+    }
+    // Collapsed by default, with every condition readable.
+    await expect(page.getByTestId('conditions-toggle')).toHaveAttribute('aria-expanded', 'false');
+    await expect(page.getByRole('radiogroup', { name: 'Lie' })).toHaveCount(0);
+    await expect(page.getByTestId('cond-wind-chip')).toContainText('Calm');
+    await expect(page.getByTestId('cond-lie-chip')).toContainText('Fairway');
+    await expect(page.getByTestId('adjustments')).toHaveCount(0);
+    // A chip opens the editor at its section.
+    await page.getByTestId('cond-lie-chip').click();
+    await page.getByRole('radio', { name: 'Rough', exact: true }).click();
+    await page.getByRole('radio', { name: 'Uphill lie' }).click();
+    await page.getByRole('radiogroup', { name: 'Quick wind speed' }).getByRole('radio', { name: '10' }).click();
+    await page.getByTestId('conditions-toggle').click();
+    // Anything that changes the shot stays visible: highlighted chips, the plays-like breakdown and the cautions.
+    await expect(page.getByTestId('cond-lie-chip')).toContainText('Rough · Uphill lie');
+    await expect(page.getByTestId('cond-lie-chip')).toHaveClass(/set/);
+    await expect(page.getByTestId('cond-wind-chip')).toContainText('10 mph into');
+    await expect(page.getByTestId('adjustments')).toContainText('Wind +');
+    await expect(page.getByTestId('adjustments')).toContainText('Lie +');
+    await expect(page.getByTestId('cautions')).toContainText('Rough');
+    // The chips add up to the plays-like number, the same arithmetic as The math.
+    const adds = (await page.getByTestId('adjustments').innerText()).match(/[+−]\d+/g)!.map((x) => Number(x.replace('−', '-')));
+    const plays = Number((await page.getByTestId('plays-like').innerText()).match(/\d+/)![0]);
+    expect(152 + adds.reduce((a, b) => a + b, 0)).toBe(plays);
+    await page.getByText('The math').click();
+    await expect(page.getByTestId('math')).toContainText(`${plays}`);
+  });
+
+  test('metric units carry through the conditions summary', async ({ page }) => {
+    await seed(page, { units: { distance: 'm', wind: 'kmh', temperature: 'C', height: 'm' } });
+    await page.goto('./#caddie');
+    await distance(page).fill('140');
+    await openConditions(page);
+    await page.getByRole('radiogroup', { name: 'Quick wind speed' }).getByRole('radio', { name: '20' }).click();
+    await page.getByRole('button', { name: 'Increase Elevation change' }).click();
+    await expect(page.getByTestId('cond-wind-chip')).toContainText('20 km/h');
+    await expect(page.getByTestId('cond-elevation-chip')).toContainText('Up 2 m');
+  });
+});
+
+test.describe('short-game practice', () => {
+  test('without data, drills are offered as starters and say so', async ({ page }) => {
+    await seed(page);
+    await page.goto('./#practice');
+    await expect(page.getByTestId('drill-lag-putting')).toContainText('Starter drill');
+    await expect(page.getByTestId('drill-lag-putting')).toContainText('Not based on your data yet');
+    await expect(page.getByTestId('drill-short-putts')).toContainText('Starter drill');
+    // Typed wedge numbers are a fact about the data, so that one is personal.
+    await expect(page.getByTestId('drill-wedge-calibration')).toContainText('For you');
+    await expect(page.getByTestId('practice-history')).toContainText('Finished drills are saved here');
+    await expect(page.getByTestId('tab-stats')).toHaveAttribute('aria-current', 'page');
+  });
+
+  test('a putting weakness leads to a drill, a logged session, and a comparison next time', async ({ page }) => {
+    await seed(page, {}, { 'caddaie.rounds': threePuttRounds(4) });
+    await page.goto('./#stats');
+    await expect(page.getByTestId('opportunity')).toContainText('Three-putts');
+    await page.getByTestId('practice-this').click();
+    await expect(page.getByTestId('drill')).toContainText('Lag putting');
+    await expect(page.getByTestId('drill')).toContainText('3.0 three-putts per round from 4 rounds');
+    await page.getByTestId('drill-start').click();
+    await expect(page.getByTestId('drill-target')).toHaveText('20 ft');
+    for (const o of ['in', 'short', 'in', 'in', 'long', 'short', 'in', 'short']) await page.getByTestId(`out-${o}`).click();
+    await expect(page.getByTestId('drill-count')).toHaveText('Attempt 9 of 9');
+    await page.getByTestId('drill-undo').click();
+    await expect(page.getByTestId('drill-count')).toHaveText('Attempt 8 of 9');
+    await page.getByTestId('out-short').click();
+    await page.getByTestId('out-in').click();
+    await expect(page.getByTestId('drill-summary')).toContainText('5/9');
+    await expect(page.getByTestId('drill-summary')).toContainText('Most misses were short');
+    await expect(page.getByTestId('drill-progress')).toContainText('Save it to compare');
+    await page.getByTestId('drill-save').click();
+    await expect(page.getByTestId('drill-saved')).toContainText('Saved to your practice log');
+    await page.getByTestId('drill-close').click();
+
+    // Saved across a reload, then compared with the next session.
+    await page.reload();
+    await page.goto('./#practice');
+    await expect(page.getByTestId('drill-lag-putting')).toContainText('Last: 56% · 1 session');
+    await page.getByRole('button', { name: 'Start Lag putting' }).click();
+    await expect(page.getByTestId('drill-history')).toContainText('1 session');
+    await page.getByTestId('drill-start').click();
+    for (let i = 0; i < 9; i++) await page.getByTestId(i < 8 ? 'out-in' : 'out-short').click();
+    await page.getByTestId('drill-save').click();
+    await expect(page.getByTestId('drill-progress')).toHaveText('Better than your previous session (56% → 89%).');
+    await page.getByTestId('drill-close').click();
+    await expect(page.getByTestId('practice-history')).toContainText('89%');
+
+    // Deleting is two taps and only removes that session.
+    await page.getByRole('button', { name: /Delete Lag putting session/ }).first().click();
+    await page.getByRole('button', { name: 'Delete', exact: true }).click();
+    await expect(page.getByTestId('drill-lag-putting')).toContainText('1 session');
+  });
+
+  test('leaving mid-drill asks before throwing the attempts away', async ({ page }) => {
+    await seed(page);
+    await page.goto('./#practice');
+    await page.getByRole('button', { name: 'Start Short-putt circle' }).click();
+    await page.getByTestId('drill-start').click();
+    await page.getByTestId('out-made').click();
+    await page.getByTestId('drill-close').click();
+    await expect(page.getByRole('alertdialog', { name: 'Leave the drill?' })).toContainText('logged 1 of 12');
+    await page.getByRole('button', { name: 'Keep going' }).click();
+    await expect(page.getByTestId('drill-count')).toHaveText('Attempt 2 of 12');
+    await page.getByTestId('drill-close').click();
+    await page.getByTestId('drill-discard').click();
+    await expect(page.getByTestId('drill')).toHaveCount(0);
+    await expect(page.getByTestId('practice-history')).toContainText('Finished drills are saved here');
+  });
+
+  test('the wedge carry check feeds your club distances', async ({ page }) => {
+    await seed(page);
+    await page.goto('./#practice');
+    await page.getByRole('button', { name: 'Start Wedge carry check' }).click();
+    await page.getByTestId('drill-start').click();
+    const carry = page.getByRole('textbox', { name: /Carry in/ });
+    for (const base of [120, 106, 92, 76]) for (const d of [-1, 0, 1, 0, 0]) {
+      await carry.fill(String(base + d));
+      await carry.press('Enter');
+    }
+    await expect(page.getByTestId('drill-summary')).toContainText('Sand Wedge');
+    await page.getByTestId('drill-save').click();
+    await expect(page.getByTestId('drill-saved')).toContainText('club distances (20 shots)');
+    await page.getByTestId('drill-close').click();
+    await expect(page.getByTestId('ladder-sw')).toContainText('5 shots');
+    await expect(page.getByTestId('ladder-sw')).toContainText('92');
+    await expect(page.getByTestId('drill-wedge-calibration')).toContainText('All your wedges are measured');
+    await page.getByTestId('tab-caddie').click();
+    await distance(page).fill('92');
+    await expect(page.getByTestId('club')).toHaveText('Sand Wedge');
+    await expect(page.getByTestId('local-take')).toContainText('Using your recent sand wedge average of 92 (5 shots).');
   });
 });
 
@@ -546,7 +724,10 @@ test.describe('mobile layout', () => {
     for (const tab of ['round', 'caddie', 'stats', 'swing', 'handicap']) {
       await page.getByTestId(`tab-${tab}`).click();
       await expect(page.getByTestId(`tab-${tab}`)).toHaveAttribute('aria-current', 'page');
-      if (tab === 'caddie') await distance(page).fill('150');
+      if (tab === 'caddie') {
+        await distance(page).fill('150');
+        await openConditions(page);
+      }
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(overflow, tab).toBeLessThanOrEqual(0);
       const small = await page.$$eval('button, a.tab', (els) =>
@@ -558,5 +739,9 @@ test.describe('mobile layout', () => {
       );
       expect(small, tab).toEqual([]);
     }
+    await page.getByTestId('tab-stats').click();
+    await page.getByTestId('view-practice').click();
+    await expect(page.getByTestId('practice')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), 'practice').toBeLessThanOrEqual(0);
   });
 });

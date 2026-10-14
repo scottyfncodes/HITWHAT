@@ -3458,3 +3458,513 @@ details.card:not([open]) {
   background: var(--accent-soft);
   color: var(--accent);
 }
+
+/* ---------- Caddie: shot bar → answer → conditions ---------- */
+
+.caddie {
+  gap: 12px;
+}
+
+.shot-bar {
+  gap: 10px;
+  padding: 12px;
+}
+
+.shot-bar-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-left: 4px;
+}
+
+.shot-bar .distance-input {
+  height: 64px;
+  font-size: 42px;
+}
+
+.shot-bar .step.big {
+  height: 64px;
+}
+
+.shot-bar .nudge .chip {
+  min-height: 44px;
+}
+
+.anchor {
+  scroll-margin-top: 72px;
+  height: 0;
+  margin-bottom: -12px;
+}
+
+.hero {
+  gap: 8px;
+}
+
+.hero-take {
+  margin-top: 2px;
+  font-size: 17px;
+}
+
+.adj-chips {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.adj-chips li {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--raised-2);
+  border: 1px solid var(--line);
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--text-2);
+}
+
+.adj-chips strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-cautions {
+  margin: 2px 0 0;
+  padding: 10px 12px;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--watch) 11%, transparent);
+  border-left: 3px solid var(--watch);
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.conditions {
+  gap: 10px;
+  padding: 14px 12px 12px;
+}
+
+.conditions-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 4px;
+  min-height: 44px;
+  margin: -6px 0 -4px;
+}
+
+.cond-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cond-chips li.wide {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 520px) {
+  .cond-chips {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.cond-chip {
+  width: 100%;
+  min-height: 52px;
+  display: grid;
+  align-content: center;
+  gap: 1px;
+  padding: 6px 12px;
+  border-radius: 13px;
+  border: 1px solid var(--line);
+  background: var(--raised-2);
+  text-align: left;
+}
+
+.cond-chip small {
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.cond-chip span {
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A condition that changes the shot is never hidden: it reads in the accent. */
+.cond-chip.set {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  background: var(--accent-soft);
+}
+
+.cond-chip.set small {
+  color: var(--accent);
+}
+
+.cond-panel {
+  display: grid;
+  gap: 0;
+  margin-top: 2px;
+}
+
+.cond-group {
+  display: grid;
+  gap: 12px;
+  padding: 16px 4px;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 72px;
+}
+
+.cond-panel > .btn {
+  margin-top: 4px;
+}
+
+/* ---------- Stats: game / practice switch ---------- */
+
+.view-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 16px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+}
+
+.view-tab {
+  min-height: 44px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-2);
+}
+
+.view-tab.on {
+  background: var(--raised);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+}
+
+.opportunity .btn {
+  justify-self: start;
+  margin-top: 4px;
+}
+
+/* ---------- Practice ---------- */
+
+.practice-group {
+  display: grid;
+  gap: 10px;
+}
+
+.practice-group > .card-title {
+  padding-left: 4px;
+}
+
+.drill-card {
+  gap: 10px;
+}
+
+.drill-card.recommended {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+}
+
+.drill-head {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.drill-head h3 {
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.drill-head .muted {
+  margin-top: 2px;
+}
+
+.drill-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.drill-why {
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.drill-why .badge {
+  margin-right: 4px;
+  vertical-align: 1px;
+}
+
+.drill-why.starter,
+.drill-why.unavailable {
+  color: var(--text-2);
+}
+
+.drill-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.drill-last {
+  font-size: 14px;
+  color: var(--text-2);
+}
+
+.drill-last strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.drill-foot .btn {
+  min-width: 96px;
+}
+
+.drill-foot .btn.primary {
+  min-height: 44px;
+  font-size: 16px;
+}
+
+.history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.history li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+}
+
+.history li + li {
+  border-top: 1px solid var(--line);
+}
+
+.history-main {
+  display: grid;
+}
+
+.history-main small {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.history-score {
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Drill runner */
+
+.drill-objective {
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.drill-setup {
+  margin: 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 6px;
+  color: var(--text-2);
+}
+
+.drill-facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  margin: 4px 0 0;
+}
+
+.drill-facts div {
+  display: contents;
+}
+
+.drill-facts dt {
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding-top: 2px;
+}
+
+.drill-facts dd {
+  margin: 0;
+  font-weight: 650;
+}
+
+.drill-run {
+  gap: 14px;
+}
+
+.drill-dots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.drill-dots li {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+}
+
+.drill-dots li.now {
+  border-color: var(--accent);
+}
+
+.drill-dots li.ok {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.drill-dots li.miss {
+  border-color: var(--text-3);
+  background: var(--text-3);
+}
+
+.drill-count {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-2);
+}
+
+.drill-target {
+  font-family: var(--display);
+  font-size: 48px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.drill-target small {
+  font-family: var(--font);
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: 0;
+  color: var(--text-2);
+}
+
+.drill-buttons {
+  display: grid;
+  gap: 10px;
+}
+
+.btn.big {
+  min-height: 64px;
+  font-size: 19px;
+}
+
+.row.two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.drill-run-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drill-summary {
+  gap: 10px;
+}
+
+.drill-score {
+  font-size: 17px;
+  color: var(--text-2);
+}
+
+.drill-score strong {
+  font-family: var(--display);
+  font-size: 44px;
+  font-weight: 850;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  margin-right: 4px;
+}
+
+.by-target,
+.carry-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.by-target li,
+.carry-results li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+
+.carry-results li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 48px;
+}
+
+.carry-results li span:last-child {
+  text-align: right;
+}
+
+.drill-progress {
+  font-weight: 650;
+}
+
+.banner .icon {
+  vertical-align: -3px;
+  color: var(--accent);
+}
+
+.banner .row {
+  margin-top: 10px;
+}

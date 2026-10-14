@@ -1,6 +1,7 @@
 import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import type { GreenDistances } from '../core/geo';
+import type { DrillId } from '../core/practice';
 import type { HandicapReport } from '../core/handicap';
 import type { Round } from '../core/round';
 import type { ClubDistanceStat } from '../core/shots';
@@ -10,8 +11,12 @@ import type { Units } from '../core/units';
 import type { GolfData } from '../state/golf';
 import type { KeyValueStore, Profile } from '../state/profile';
 
-export type Tab = 'round' | 'caddie' | 'stats' | 'swing' | 'handicap';
+export type Tab = 'round' | 'caddie' | 'stats' | 'swing' | 'handicap' | 'practice';
+/** The tab bar. `practice` is a view inside Stats with its own address (#practice). */
 export const TABS: Tab[] = ['round', 'caddie', 'stats', 'swing', 'handicap'];
+export const ROUTES: Tab[] = [...TABS, 'practice'];
+/** Which tab-bar item a route belongs to. */
+export const tabOf = (t: Tab): Tab => (t === 'practice' ? 'stats' : t);
 
 /** What the rangefinder hands back to the caddie. */
 export interface RangeResult {
@@ -41,6 +46,8 @@ export interface AppState {
   openRangefinder: () => void;
   /** Opens the range session, optionally on a club. */
   openPractice: (clubId?: string) => void;
+  /** Opens a short-game drill. */
+  openDrill: (drill: DrillId) => void;
   shot: ShotInput;
   setShot: (fn: (s: ShotInput) => ShotInput) => void;
   pin: PinPosition | null;

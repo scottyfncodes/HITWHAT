@@ -3,6 +3,7 @@
  * back through sanitisers so an old or corrupt payload degrades gracefully.
  */
 import { defaultTee, emptyHole, type Course, type FairwayResult, type HoleScore, type Round, type TeeInfo } from '../core/round';
+import { DRILL_IDS, type Attempt, type DrillId, type Outcome, type PracticeSession } from '../core/practice';
 import type { ShotRecord } from '../core/shots';
 import type { KeyValueStore } from './profile';
 
@@ -10,11 +11,14 @@ import type { KeyValueStore } from './profile';
 export const ROUNDS_KEY = 'caddaie.rounds';
 export const COURSES_KEY = 'caddaie.courses';
 export const SHOTS_KEY = 'caddaie.shots';
+export const PRACTICE_KEY = 'caddaie.practice';
 
 export interface GolfData {
   rounds: Round[];
   courses: Course[];
   shots: ShotRecord[];
+  /** Logged drill sessions. Absent in data and backups from before drills existed. */
+  practice: PracticeSession[];
 }
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -132,6 +136,32 @@ export function sanitizeShot(raw: unknown): ShotRecord | null {
   };
 }
 
+const OUTCOMES: readonly Outcome[] = ['in', 'short', 'long', 'made', 'missed'];
+
+function sanitizeAttempt(raw: unknown): Attempt | null {
+  if (!isObj(raw)) return null;
+  const target = num(raw.target, 1, 300);
+  if (target === null) return null;
+  return {
+    target,
+    clubId: typeof raw.clubId === 'string' ? raw.clubId.slice(0, 20) : null,
+    outcome: typeof raw.outcome === 'string' && (OUTCOMES as readonly string[]).includes(raw.outcome) ? (raw.outcome as Outcome) : null,
+    carry: num(raw.carry, 1, 450),
+  };
+}
+
+export function sanitizePractice(raw: unknown): PracticeSession | null {
+  if (!isObj(raw)) return null;
+  const pid = id(raw.id);
+  const at = num(raw.at, 0, 4102444800000);
+  const drill = typeof raw.drill === 'string' && (DRILL_IDS as readonly string[]).includes(raw.drill) ? (raw.drill as DrillId) : null;
+  if (!pid || at === null || !drill || !Array.isArray(raw.attempts)) return null;
+  const attempts = raw.attempts.slice(0, 60).map(sanitizeAttempt).filter((a): a is Attempt => a !== null);
+  if (!attempts.length) return null;
+  const shotIds = Array.isArray(raw.shotIds) ? raw.shotIds.map(id).filter((x): x is string => x !== null).slice(0, 60) : [];
+  return { id: pid, drill, at, attempts, shotIds };
+}
+
 const list = <T extends { id: string }>(raw: unknown, f: (x: unknown) => T | null, max: number): T[] => {
   if (!Array.isArray(raw)) return [];
   const seen = new Set<string>();
@@ -147,7 +177,7 @@ const list = <T extends { id: string }>(raw: unknown, f: (x: unknown) => T | nul
   return out;
 };
 
-export const sanitizeGolf = (raw: { rounds?: unknown; courses?: unknown; shots?: unknown }): GolfData => {
+export const sanitizeGolf = (raw: { rounds?: unknown; courses?: unknown; shots?: unknown; practice?: unknown }): GolfData => {
   const rounds = list(raw.rounds, sanitizeRound, 500);
   // Only one round can be in progress.
   let active = false;
@@ -156,7 +186,12 @@ export const sanitizeGolf = (raw: { rounds?: unknown; courses?: unknown; shots?:
     if (active) r.status = 'complete';
     active = true;
   }
-  return { rounds, courses: list(raw.courses, sanitizeCourse, 100), shots: list(raw.shots, sanitizeShot, 3000) };
+  return {
+    rounds,
+    courses: list(raw.courses, sanitizeCourse, 100),
+    shots: list(raw.shots, sanitizeShot, 3000),
+    practice: list(raw.practice, sanitizePractice, 1000),
+  };
 };
 
 function read(store: KeyValueStore | null, key: string): unknown {
@@ -170,7 +205,7 @@ function read(store: KeyValueStore | null, key: string): unknown {
 }
 
 export function loadGolf(store: KeyValueStore | null): GolfData {
-  return sanitizeGolf({ rounds: read(store, ROUNDS_KEY), courses: read(store, COURSES_KEY), shots: read(store, SHOTS_KEY) });
+  return sanitizeGolf({ rounds: read(store, ROUNDS_KEY), courses: read(store, COURSES_KEY), shots: read(store, SHOTS_KEY), practice: read(store, PRACTICE_KEY) });
 }
 
 export function saveGolf(data: GolfData, store: KeyValueStore | null): boolean {
@@ -179,6 +214,7 @@ export function saveGolf(data: GolfData, store: KeyValueStore | null): boolean {
     store.setItem(ROUNDS_KEY, JSON.stringify(data.rounds));
     store.setItem(COURSES_KEY, JSON.stringify(data.courses));
     store.setItem(SHOTS_KEY, JSON.stringify(data.shots));
+    store.setItem(PRACTICE_KEY, JSON.stringify(data.practice));
     return true;
   } catch {
     return false;

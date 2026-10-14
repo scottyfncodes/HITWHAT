@@ -3,7 +3,9 @@ import { useMemo } from 'preact/hooks';
 import { roundScore, roundTotals } from '../core/round';
 import { AREA_LABEL, insights, playerStats, type Verdict } from '../core/stats';
 import { useApp } from './context';
-import { DistancesCard, PracticePlanCard } from './Distances';
+import { drillAdvice, type DrillId } from '../core/practice';
+import { useLadder } from './Distances';
+import { PracticeView } from './Practice';
 import { Badge, Empty, shortDate, Stat, Trend, type Tone } from './kit';
 
 const VERDICT: Record<Verdict, { text: string; tone: Tone }> = {
@@ -16,10 +18,44 @@ const f1 = (n: number | null, suffix = '') => (n === null ? '—' : `${n.toFixed
 const pct = (n: number | null) => (n === null ? '—' : `${Math.round(n)}%`);
 const signed = (n: number | null) => (n === null ? '—' : `${n > 0 ? '+' : ''}${n.toFixed(2)}`);
 
-export function StatsTab() {
-  const { golf, handicap, profile, go, active } = useApp();
+export function StatsTab({ view = 'game' }: { view?: 'game' | 'practice' }) {
+  return (
+    <div class="stack">
+      <div class="view-switch" role="tablist" aria-label="Stats or practice">
+        <ViewTab id="stats" label="Your game" on={view === 'game'} />
+        <ViewTab id="practice" label="Practice" on={view === 'practice'} />
+      </div>
+      {view === 'practice' ? <PracticeView /> : <GameView />}
+    </div>
+  );
+}
+
+function ViewTab({ id, label, on }: { id: 'stats' | 'practice'; label: string; on: boolean }) {
+  const { go } = useApp();
+  return (
+    <button type="button" role="tab" aria-selected={on} class={`view-tab${on ? ' on' : ''}`} onClick={() => go(id)} data-testid={`view-${id}`}>
+      {label}
+    </button>
+  );
+}
+
+/** The drill that trains an area, when the golfer's data recommends one. */
+function useDrillFor(area: string | undefined): DrillId | null {
+  const { golf, profile } = useApp();
+  const { rows } = useLadder();
+  return useMemo(() => {
+    if (area !== 'putting' && area !== 'approach') return null;
+    const advice = drillAdvice({ rounds: golf.rounds, ladder: rows, label: (id) => profile.clubs.find((c) => c.id === id)?.name ?? id, dist: (y) => `${Math.round(y)} yds` });
+    const want = area === 'putting' ? ['lag-putting', 'short-putts'] : ['wedge-ladder', 'wedge-calibration'];
+    return advice.find((a) => want.includes(a.drill) && a.status === 'recommended')?.drill ?? (area === 'putting' ? 'lag-putting' : 'wedge-ladder');
+  }, [area, golf.rounds, rows]);
+}
+
+function GameView() {
+  const { golf, handicap, profile, go, active, openDrill } = useApp();
   const s = useMemo(() => playerStats(golf.rounds), [golf.rounds]);
   const ins = useMemo(() => insights(golf.rounds), [golf.rounds]);
+  const drillForOpportunity = useDrillFor(ins.opportunity?.area);
   const recent = useMemo(
     () =>
       golf.rounds
@@ -43,9 +79,10 @@ export function StatsTab() {
           <button type="button" class="btn primary" onClick={() => go('round')}>
             {active ? 'Back to your round' : 'Start a round'}
           </button>
+          <button type="button" class="link" onClick={() => go('practice')}>
+            Or practice and see your club distances
+          </button>
         </Empty>
-        <DistancesCard />
-        <PracticePlanCard />
       </div>
     );
   }
@@ -73,6 +110,11 @@ export function StatsTab() {
             <div class="opportunity" data-testid="opportunity">
               <span class="eyebrow">Biggest opportunity</span>
               <p>{ins.opportunity.text}</p>
+              {drillForOpportunity && (
+                <button type="button" class="btn small" onClick={() => openDrill(drillForOpportunity)} data-testid="practice-this">
+                  Practice this
+                </button>
+              )}
             </div>
           )}
           <p class="fine">
@@ -136,9 +178,6 @@ export function StatsTab() {
           )}
         </section>
       )}
-
-      <DistancesCard />
-      <PracticePlanCard />
 
       <section class="card">
         <h2 class="card-title">Recent rounds</h2>

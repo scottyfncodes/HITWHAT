@@ -9,7 +9,9 @@ import { loadProfile, loadSituation, safeStorage, saveProfile, saveSituation, ty
 import { requestPersistence } from '../state/swings';
 import { CaddieTab } from './CaddieTab';
 import { RangeSession } from './Distances';
-import { AppContext, TABS, type AppState, type RangeResult, type Tab } from './context';
+import { AppContext, ROUTES, TABS, tabOf, type AppState, type RangeResult, type Tab } from './context';
+import { DrillSheet } from './Practice';
+import type { DrillId } from '../core/practice';
 import { HandicapTab } from './HandicapTab';
 import { Icon } from './kit';
 import { Rangefinder } from './Rangefinder';
@@ -26,11 +28,12 @@ const TAB_META: Record<Tab, { label: string; icon: Parameters<typeof Icon>[0]['n
   stats: { label: 'Stats', icon: 'stats' },
   swing: { label: 'Swing', icon: 'swing' },
   handicap: { label: 'Handicap', icon: 'handicap' },
+  practice: { label: 'Practice', icon: 'stats' },
 };
 
 const tabFromHash = (): Tab => {
   const h = (typeof location !== 'undefined' ? location.hash.slice(1) : '') as Tab;
-  return TABS.includes(h) ? h : 'round';
+  return ROUTES.includes(h) ? h : 'round';
 };
 
 export function App() {
@@ -44,6 +47,7 @@ export function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [rangeOpen, setRangeOpen] = useState(false);
   const [practice, setPractice] = useState<{ club: string | null } | null>(null);
+  const [drill, setDrill] = useState<DrillId | null>(null);
   const [storageOk, setStorageOk] = useState(storage !== null);
 
   useEffect(() => {
@@ -105,6 +109,7 @@ export function App() {
     openSettings: () => setSettingsOpen(true),
     openRangefinder: () => setRangeOpen(true),
     openPractice: (clubId?: string) => setPractice({ club: clubId ?? null }),
+    openDrill: (d: DrillId) => setDrill(d),
     shot,
     setShot,
     pin,
@@ -146,7 +151,7 @@ export function App() {
         <main class="screen" id="main">
           {tab === 'round' && <RoundTab />}
           {tab === 'caddie' && <CaddieTab />}
-          {tab === 'stats' && <StatsTab />}
+          {(tab === 'stats' || tab === 'practice') && <StatsTab view={tab === 'practice' ? 'practice' : 'game'} />}
           {tab === 'swing' && <SwingTab />}
           {tab === 'handicap' && <HandicapTab />}
         </main>
@@ -156,8 +161,8 @@ export function App() {
             <a
               key={t}
               href={`#${t}`}
-              class={`tab${t === tab ? ' on' : ''}`}
-              aria-current={t === tab ? 'page' : undefined}
+              class={`tab${t === tabOf(tab) ? ' on' : ''}`}
+              aria-current={t === tabOf(tab) ? 'page' : undefined}
               data-testid={`tab-${t}`}
               onClick={(e) => {
                 e.preventDefault();
@@ -171,6 +176,7 @@ export function App() {
         </nav>
 
         {settingsOpen && <Settings onClose={() => setSettingsOpen(false)} />}
+        {drill && <DrillSheet drill={drill} onClose={() => setDrill(null)} />}
         {practice && <RangeSession startClub={practice.club} onClose={() => setPractice(null)} />}
         {rangeOpen && (
           <Rangefinder
