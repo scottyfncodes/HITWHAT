@@ -89,6 +89,10 @@ export function Rangefinder({ onClose, onUse }: { onClose: () => void; onUse: (r
             updateGolf((g) => ({ ...g, courses: g.courses.map((c) => (c.id === course.id ? { ...c, targets: { ...c.targets, [hole]: p } } : c)) }));
           }}
           onUse={onUse}
+          onManual={() => {
+            onClose();
+            requestAnimationFrame(() => document.getElementById('distance')?.focus());
+          }}
         />
       ) : (
         <FlagMode
@@ -115,6 +119,7 @@ function GpsMode({
   canSave,
   onSaveTarget,
   onUse,
+  onManual,
 }: {
   units: ReturnType<typeof useApp>['units'];
   storage: ReturnType<typeof useApp>['storage'];
@@ -123,6 +128,7 @@ function GpsMode({
   canSave: boolean;
   onSaveTarget: (p: LatLon) => void;
   onUse: (r: RangeResult) => void;
+  onManual: () => void;
 }) {
   const gps = useGps(true);
   const [compassOk, setCompassOk] = useState(!compassNeedsPermission());
@@ -188,7 +194,12 @@ function GpsMode({
 
       <section class="rf-panel" aria-live="polite" data-testid="rf-panel">
         {gps.status === 'error' ? (
-          <p class="rf-msg">{GPS_ERROR_TEXT[gps.reason]}</p>
+          <>
+            <p class="rf-msg">{GPS_ERROR_TEXT[gps.reason]}</p>
+            <button type="button" class="btn wide" onClick={onManual} data-testid="rf-manual">
+              Type the distance instead
+            </button>
+          </>
         ) : !fix ? (
           <p class="rf-msg">
             <span class="spinner" aria-hidden="true" /> Finding your position…

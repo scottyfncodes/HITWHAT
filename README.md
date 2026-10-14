@@ -3,7 +3,7 @@
 **What do I hit here?** HitWhat answers the question every golfer asks over the ball. A scorekeeper, rangefinder, swing coach, stats analyst, handicap tracker and
 personal caddie in one mobile web app, built for iPhone Safari and the Home Screen.
 
-- **Live app:** https://scottyfncodes.github.io/HitWhat/ (GitHub Pages). On iPhone: Share › Add to Home Screen; it
+- **Live app:** https://scottyfncodes.github.io/HITWHAT/ (GitHub Pages). On iPhone: Share › Add to Home Screen; it
   installs as **HitWhat**.
 - **Domain:** https://hitwhat.com/ is the canonical home (set in the page metadata). Until the custom domain is
   pointed at Pages, the GitHub Pages URL above is the live app. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
@@ -20,6 +20,7 @@ understanding, and the caddie's call is the advice. Every round makes the next r
 | **Round** | Start a round (find the course on OpenStreetMap or type it), score each hole in two or three taps: score, putts, tee shot, GIR (auto), penalties, club, notes, GPS shot tracking. One line of feedback after every hole. Finish with a summary: score, vs your average, putts, GIR, fairways, penalties, strongest area, biggest opportunity, key takeaway. |
 | **Caddie** | One clear call: distance, club, swing, a one-sentence reason ("Favor the middle. Pin is back-left. Your recent 7-iron average is 155."), aim, safest miss, and the hole plan during a round. Wind, elevation, lie, stance, trouble, pin and air feed the deterministic engine. |
 | **Rangefinder** (in Caddie) | Camera view + GPS + compass. Distance to the centre, front and back of greens mapped in OpenStreetMap, or to a pin spot you saved; green height from a terrain model; flag-size estimate with an error range. A help panel says what it can and can't measure. |
+| **Distances** (in Stats) | Every club on one ladder: the number the caddie uses, whether it's your tracked average or the carry you typed, the spread of your shots, and gaps that are too wide or overlapping. A practice plan read straight from it (measure these clubs, tighten this one, fill this gap) and a **range session** for logging carries in one tap each. Also on the Round home. |
 | **Stats** | "Your game right now" (putting, approach, driving, penalties: good / OK / watch, improving / slipping), the single biggest opportunity in strokes, then scoring average, FIR, GIR, putts, putts per GIR, penalties, par-3/4/5 and front/back scoring, score trend and club distances. |
 | **Swing** | Down-the-line or face-on positioning guide, hands-free recording (countdown + beeps) or a video from Photos, slow-motion review, on-device pose analysis (MediaPipe), one thing to work on, key frames with the skeleton, save, compare with your previous or best swing, recurring tendencies. |
 | **Handicap** | A HitWhat estimate from your rounds (World Handicap System arithmetic), shown separately from your official Handicap Index (which you can type in). Differentials, which scores count, trend, course handicap, a plain-English explanation, and exactly what's missing when there isn't enough data. |
@@ -65,7 +66,7 @@ is computed on the phone from the deterministic engine and your own data.
 ```
 src/
   core/        Pure, deterministic logic (no I/O): recommend, adjustments, clubs, units, format, voice,
-               round, stats, handicap, shots, strategy, geo, rangefinder, swing
+               round, stats, handicap, shots, gapping, strategy, geo, rangefinder, swing
   state/       Profile, rounds/courses/shots (sanitised localStorage), swings (IndexedDB), backup
   services/    Weather, sensors (GPS, compass, terrain), camera, OpenStreetMap, pose (MediaPipe)
   ui/          Preact screens: App shell, Round, Caddie, Rangefinder, Stats, Swing, Handicap, Settings

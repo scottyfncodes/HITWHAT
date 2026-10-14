@@ -81,13 +81,15 @@ interface NumberFieldProps {
   placeholder?: string;
   describedBy?: string;
   invalid?: boolean;
+  /** Called on Enter / the keypad's Done key instead of just dismissing the keyboard. */
+  onEnter?: () => void;
 }
 
 /**
  * Numeric text input that brings up the iOS number pad, lets the golfer
  * clear it completely and never fights their typing.
  */
-export function NumberField({ id, label, value, onChange, min, max, class: cls, placeholder, describedBy, invalid }: NumberFieldProps) {
+export function NumberField({ id, label, value, onChange, min, max, class: cls, placeholder, describedBy, invalid, onEnter }: NumberFieldProps) {
   const [text, setText] = useState(value === null ? '' : String(Math.round(value)));
   useEffect(() => {
     const parsed = text.trim() === '' ? null : Number(text);
@@ -104,7 +106,7 @@ export function NumberField({ id, label, value, onChange, min, max, class: cls, 
       inputMode="numeric"
       pattern="[0-9]*"
       autoComplete="off"
-      enterKeyHint="done"
+      enterKeyHint={onEnter ? 'send' : 'done'}
       aria-label={label}
       aria-describedby={describedBy}
       aria-invalid={invalid || undefined}
@@ -122,7 +124,10 @@ export function NumberField({ id, label, value, onChange, min, max, class: cls, 
         if (value !== null && (value < min || value > max)) setText(String(Math.round(value)));
       }}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') (e.currentTarget as HTMLInputElement).blur();
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        if (onEnter) onEnter();
+        else (e.currentTarget as HTMLInputElement).blur();
       }}
     />
   );

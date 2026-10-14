@@ -404,8 +404,9 @@ test.describe('rangefinder', () => {
     await page.goto('./#caddie');
     await page.getByTestId('open-rangefinder').click();
     await expect(page.getByTestId('rf-panel')).toContainText('Location is off');
-    await page.getByTestId('rf-close').click();
+    await page.getByTestId('rf-manual').click();
     await expect(page.getByTestId('rangefinder')).toHaveCount(0);
+    await expect(distance(page)).toBeFocused();
   });
 });
 
@@ -491,6 +492,52 @@ test.describe('offline', () => {
   });
 });
 
+test.describe('distances and practice', () => {
+  test('a range session fills the ladder and the caddie switches to the real number', async ({ page }) => {
+    await seed(page);
+    await page.goto('./#stats');
+    // No rounds yet, but the bag and a practice plan still show.
+    await expect(page.getByTestId('ladder-9i')).toContainText('Typed');
+    await expect(page.getByTestId('practice-plan')).toContainText('Measure your 8 Iron, 9 Iron and 7 Iron');
+    await page.getByTestId('open-practice').click();
+    await page.getByRole('radio', { name: '9i', exact: true }).click();
+    const carry = page.getByRole('textbox', { name: /Carry in/ });
+    for (const d of ['134', '136', '135', '133']) {
+      await carry.fill(d);
+      await carry.press('Enter');
+    }
+    await page.getByRole('radio', { name: 'Mishit' }).click();
+    await carry.fill('90');
+    await page.getByTestId('log-range-shot').click();
+    await expect(page.getByTestId('range-club-status')).toContainText('4 of 5 full shots');
+    await page.getByRole('radio', { name: 'Good full swing' }).click();
+    await carry.fill('137');
+    await page.getByTestId('log-range-shot').click();
+    await expect(page.getByTestId('range-club-status')).toContainText('your average is 135 yds from 5 shots');
+    // Undo is one tap.
+    await page.getByRole('button', { name: 'Remove 9 Iron 90 yds mishit' }).click();
+    await expect(page.getByTestId('range-log')).toContainText('5 shots · avg 135 yds');
+    await page.getByTestId('sheet-done').click();
+    await expect(page.getByTestId('ladder-9i')).toContainText('5 shots');
+    await expect(page.getByTestId('ladder-9i')).toContainText('135');
+    await page.getByTestId('tab-caddie').click();
+    await distance(page).fill('135');
+    await expect(page.getByTestId('club')).toHaveText('9 Iron');
+    await expect(page.getByTestId('local-take')).toContainText('Using your recent 9-iron average of 135 (5 shots).');
+  });
+
+  test('gaps in the bag are called out with a range job', async ({ page }) => {
+    await seed(page);
+    await page.goto('./#round');
+    await page.getByTestId('open-settings').click();
+    await page.getByRole('checkbox', { name: 'Gap Wedge' }).uncheck();
+    await page.getByTestId('sheet-done').click();
+    await page.getByTestId('tab-stats').click();
+    await expect(page.getByTestId('ladder-gap')).toHaveText('28 yds gap — no full swing for this');
+    await expect(page.getByTestId('practice-plan')).toContainText('Fill the 28 yds gap');
+  });
+});
+
 test.describe('mobile layout', () => {
   test('every tab: no horizontal scroll and big touch targets', async ({ page, isMobile }) => {
     test.skip(!isMobile, 'mobile only');
@@ -498,6 +545,7 @@ test.describe('mobile layout', () => {
     await page.goto('./');
     for (const tab of ['round', 'caddie', 'stats', 'swing', 'handicap']) {
       await page.getByTestId(`tab-${tab}`).click();
+      await expect(page.getByTestId(`tab-${tab}`)).toHaveAttribute('aria-current', 'page');
       if (tab === 'caddie') await distance(page).fill('150');
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       expect(overflow, tab).toBeLessThanOrEqual(0);

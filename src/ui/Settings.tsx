@@ -97,7 +97,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
                         <small>avg</small>
                       </>
                     ) : (
-                      <small>+</small>
+                      <small>Log</small>
                     )}
                   </button>
                 </div>

@@ -1,11 +1,10 @@
 /** STATS: the 2–3 things that matter about your game right now, then the numbers behind them. */
 import { useMemo } from 'preact/hooks';
-import { fmtDistance } from '../core/format';
 import { roundScore, roundTotals } from '../core/round';
 import { AREA_LABEL, insights, playerStats, type Verdict } from '../core/stats';
-import { distanceLabel } from '../core/units';
 import { useApp } from './context';
-import { Badge, Empty, Icon, shortDate, Stat, Trend, type Tone } from './kit';
+import { DistancesCard, PracticePlanCard } from './Distances';
+import { Badge, Empty, shortDate, Stat, Trend, type Tone } from './kit';
 
 const VERDICT: Record<Verdict, { text: string; tone: Tone }> = {
   good: { text: 'Good', tone: 'good' },
@@ -18,7 +17,7 @@ const pct = (n: number | null) => (n === null ? '—' : `${Math.round(n)}%`);
 const signed = (n: number | null) => (n === null ? '—' : `${n > 0 ? '+' : ''}${n.toFixed(2)}`);
 
 export function StatsTab() {
-  const { golf, handicap, profile, clubStats, units, go, openSettings, active } = useApp();
+  const { golf, handicap, profile, go, active } = useApp();
   const s = useMemo(() => playerStats(golf.rounds), [golf.rounds]);
   const ins = useMemo(() => insights(golf.rounds), [golf.rounds]);
   const recent = useMemo(
@@ -45,14 +44,11 @@ export function StatsTab() {
             {active ? 'Back to your round' : 'Start a round'}
           </button>
         </Empty>
+        <DistancesCard />
+        <PracticePlanCard />
       </div>
     );
   }
-
-  const tracked = profile.clubs
-    .filter((c) => clubStats.has(c.id))
-    .map((c) => ({ c, st: clubStats.get(c.id)! }))
-    .sort((a, b) => b.c.carry - a.c.carry);
 
   return (
     <div class="stack">
@@ -141,44 +137,8 @@ export function StatsTab() {
         </section>
       )}
 
-      <section class="card">
-        <div class="field-head">
-          <h2 class="card-title">Your clubs</h2>
-          <button type="button" class="link" onClick={openSettings}>
-            Edit bag
-          </button>
-        </div>
-        {tracked.length ? (
-          <table class="data-table clubs" data-testid="club-table">
-            <thead>
-              <tr>
-                <th scope="col">Club</th>
-                <th scope="col">Avg</th>
-                <th scope="col">Shots</th>
-                <th scope="col">Reliability</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tracked.map(({ c, st }) => (
-                <tr key={c.id}>
-                  <th scope="row">{c.name}</th>
-                  <td>
-                    {fmtDistance(st.recent, units)} {distanceLabel(units.distance)}
-                  </td>
-                  <td>{st.count}</td>
-                  <td>
-                    <Badge tone={st.reliability === 'high' ? 'good' : st.reliability === 'medium' ? 'ok' : 'muted'}>{st.reliability === 'high' ? 'High' : st.reliability === 'medium' ? 'Medium' : 'Low'}</Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p class="muted">
-            <Icon name="gps" size={16} /> Track shots with GPS during a round (under a hole’s “Club, shots &amp; notes”) and your real distances appear here and feed the caddie.
-          </p>
-        )}
-      </section>
+      <DistancesCard />
+      <PracticePlanCard />
 
       <section class="card">
         <h2 class="card-title">Recent rounds</h2>

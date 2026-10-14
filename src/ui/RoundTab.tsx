@@ -37,7 +37,7 @@ export function RoundTab() {
 }
 
 function RoundHome({ onOpen }: { onOpen: (id: string) => void }) {
-  const { golf, handicap, profile, go } = useApp();
+  const { golf, handicap, profile, go, openPractice } = useApp();
   const [starting, setStarting] = useState(false);
   const [adding, setAdding] = useState(false);
   const done = golf.rounds.filter((r) => r.status === 'complete').sort((a, b) => b.date - a.date);
@@ -67,6 +67,16 @@ function RoundHome({ onOpen }: { onOpen: (id: string) => void }) {
           <span class="stat-label">Scoring average</span>
           <span class="stat-value">{stats.scoringAvg !== null ? stats.scoringAvg.toFixed(1) : '—'}</span>
           <span class="stat-sub">{stats.rounds ? `${stats.rounds} round${stats.rounds === 1 ? '' : 's'}` : 'No rounds yet'}</span>
+        </button>
+        <button type="button" class="tile tile-wide" onClick={() => openPractice()} data-testid="tile-practice">
+          <span class="tile-icon" aria-hidden="true">
+            <Icon name="caddie" />
+          </span>
+          <span>
+            <strong>Range session</strong>
+            <span class="stat-sub">Log carries, see your gaps</span>
+          </span>
+          <Icon name="chevron" size={18} />
         </button>
       </section>
 
@@ -226,7 +236,7 @@ function ActiveRound({ round, onFinished }: { round: Round; onFinished: (id: str
           <button type="button" class="step" aria-label="One fewer stroke" disabled={!h.strokes || h.strokes <= 1} onClick={() => patchHole({ strokes: Math.max(1, (h.strokes ?? par) - 1) })}>
             −
           </button>
-          <output aria-live="polite">{h.strokes ?? '–'}</output>
+          <output aria-live="polite" class={h.strokes === null ? 'unset' : undefined}>{h.strokes ?? 'More'}</output>
           <button type="button" class="step" aria-label="One more stroke" disabled={(h.strokes ?? 0) >= 20} onClick={() => patchHole({ strokes: Math.min(20, (h.strokes ?? par) + 1) })}>
             +
           </button>

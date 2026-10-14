@@ -36,6 +36,11 @@ reliability) → `effectiveClubs` (irons, hybrids and wedges with 5+ full shots 
 `recommend`. GPS shots measure start-to-finish, so woods and driver keep the typed carry; driver averages feed the
 hole plan's tee-shot length instead.
 
+`distanceLadder` (`core/gapping.ts`) lays the bag out longest first with the number the caddie uses, its basis
+(tracked or typed), a one-standard-deviation band once a club has 4+ shots, and flags gaps under 5 yds (overlap) or
+over 18 yds (25 after a driver or wood). `practicePlan` turns that into at most three range jobs, each a literal
+reading of the ladder. Range-session shots are stored as `manual` shot records, so they feed the same loop.
+
 Round history feeds `insights` (Stats), `holePlan` (fairway-miss pattern, scoring history on that hole) and
 `handicapReport` (which feeds `targetAdvice`: tucked pins are attacked only by single-digit players with a scoring
 club).
