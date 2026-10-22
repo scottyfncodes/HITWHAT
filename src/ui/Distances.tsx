@@ -62,7 +62,7 @@ export function DistanceLadder({ rows }: { rows: LadderRow[] }) {
           </div>
           {r.gapFlag && r.gapToNext !== null && (
             <p class={`ladder-gap ${r.gapFlag}`} data-testid="ladder-gap">
-              {r.gapFlag === 'wide' ? `${shown(r.gapToNext, u)} ${unit} gap — no full swing for this` : r.gapToNext <= 0 ? 'Same distance as the next club' : `Only ${shown(r.gapToNext, u)} ${unit} to the next club`}
+              {r.gapFlag === 'wide' ? `${shown(r.gapToNext, u)} ${unit} gap, no full swing for this` : r.gapToNext <= 0 ? 'Same distance as the next club' : `Only ${shown(r.gapToNext, u)} ${unit} to the next club`}
             </p>
           )}
         </li>
@@ -99,7 +99,7 @@ export function DistancesCard() {
       <p class="fine">
         {tracked
           ? `${tracked} club${tracked === 1 ? '' : 's'} use${tracked === 1 ? 's' : ''} your own average (${MIN_SHOTS_TO_LEARN}+ full shots). GPS-tracked shots include roll, so woods keep your typed carry.`
-          : `Each club uses the carry you typed until it has ${MIN_SHOTS_TO_LEARN} full shots logged — then the caddie switches to your real average.`}
+          : `Each club uses the carry you typed until it has ${MIN_SHOTS_TO_LEARN} full shots logged. Then the caddie switches to your real average.`}
       </p>
       <button type="button" class="btn wide" onClick={() => openPractice()} data-testid="open-practice">
         <Icon name="plus" size={20} /> Log range shots
@@ -202,7 +202,7 @@ export function RangeSession({ onClose, startClub }: { onClose: () => void; star
               </>
             ) : (
               <>
-                {count} of {MIN_SHOTS_TO_LEARN} full shots logged — {MIN_SHOTS_TO_LEARN - count} more and the caddie uses your real number.
+                {count} of {MIN_SHOTS_TO_LEARN} full shots logged. {MIN_SHOTS_TO_LEARN - count} more and the caddie uses your real number.
               </>
             )}
           </p>

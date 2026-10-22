@@ -96,9 +96,9 @@ function PlayedSummary({ r, history }: { r: Round; history: Round[] }) {
       </section>
 
       <section class="stat-grid">
-        <Stat label="Putts" value={s.putts ?? '—'} testid="summary-putts" />
-        <Stat label="Greens" value={s.gir ?? '—'} />
-        <Stat label="Fairways" value={s.fairways ?? '—'} />
+        <Stat label="Putts" value={s.putts ?? '–'} testid="summary-putts" />
+        <Stat label="Greens" value={s.gir ?? '–'} />
+        <Stat label="Fairways" value={s.fairways ?? '–'} />
         <Stat label="Penalties" value={s.penalties} />
       </section>
 
@@ -168,7 +168,7 @@ function ManualSummary({ r }: { r: Round }) {
         {r.courseName} · {longDate(r.date)} · score only
       </p>
       <div class="summary-score">
-        <strong data-testid="summary-score">{r.manualScore ?? '—'}</strong>
+        <strong data-testid="summary-score">{r.manualScore ?? '–'}</strong>
         <span>{r.manualScore !== null ? toParText(r.manualScore - par) : ''}</span>
       </div>
       <p class="summary-vs">

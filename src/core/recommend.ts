@@ -61,10 +61,10 @@ export function validate(input: ShotInput, ctx: PlayerContext): Exclude<CaddieRe
     return { status: 'invalid', field: 'elevation', message: 'Elevation change must be within ±300 ft.' };
   }
   if (input.temperatureF !== null && (!finite(input.temperatureF) || !within(input.temperatureF, LIMITS.temperatureF))) {
-    return { status: 'invalid', field: 'temperature', message: 'Temperature looks off — check it.' };
+    return { status: 'invalid', field: 'temperature', message: 'Temperature looks off. Check it.' };
   }
   if (input.altitudeFt !== null && (!finite(input.altitudeFt) || !within(input.altitudeFt, LIMITS.altitudeFt))) {
-    return { status: 'invalid', field: 'altitude', message: 'Altitude looks off — check it.' };
+    return { status: 'invalid', field: 'altitude', message: 'Altitude looks off. Check it.' };
   }
   if (eligibleClubs(ctx.clubs, input.lie).length === 0) {
     return { status: 'needs-input', field: 'clubs', prompt: 'Add at least one club with a carry distance in Settings.' };
@@ -105,18 +105,18 @@ const LIE_ADJ_LABEL: Record<ShotInput['lie'], string> = {
   tee: 'Tee',
   fairway: 'Fairway',
   'first-cut': 'First cut',
-  rough: 'Rough — ball comes out slower',
-  'deep-rough': 'Deep rough — grass grabs the club',
-  bunker: 'Fairway bunker — pick it clean',
+  rough: 'Rough: ball comes out slower',
+  'deep-rough': 'Deep rough: grass grabs the club',
+  bunker: 'Fairway bunker: pick it clean',
   hardpan: 'Hardpan',
 };
 
 const STANCE_ADJ_LABEL: Record<ShotInput['stance'], string> = {
   flat: 'Flat',
   'ball-above': 'Ball above feet',
-  'ball-below': 'Ball below feet — harder to reach',
-  uphill: 'Uphill lie — adds loft',
-  downhill: 'Downhill lie — takes off loft',
+  'ball-below': 'Ball below feet: harder to reach',
+  uphill: 'Uphill lie: adds loft',
+  downhill: 'Downhill lie: takes off loft',
 };
 
 type Bias = 'longer' | 'shorter' | 'none';
@@ -220,10 +220,10 @@ function alternativesFor(pick: Pick, playsLike: number, clubs: Club[]): Alternat
   const shorter = clubs[idx + 1];
   const out: Alternative[] = [];
   if (pick.club.carry >= playsLike && shorter && playsLike - shorter.carry <= 12) {
-    out.push({ club: shorter, swing: 'full', note: `Only if you're flushing it — carries ${Math.round(shorter.carry)}` });
+    out.push({ club: shorter, swing: 'full', note: `Only if you're flushing it. Carries ${Math.round(shorter.carry)}` });
   }
   if (pick.club.carry < playsLike && longer) {
-    out.push({ club: longer, swing: 'smooth', note: `Smooth it to be sure you get there — carries ${Math.round(longer.carry)}` });
+    out.push({ club: longer, swing: 'smooth', note: `Smooth it to be sure you get there. Carries ${Math.round(longer.carry)}` });
   }
   if (pick.club.carry >= playsLike && pick.swing === 'full' && longer && longer.carry - playsLike <= 12) {
     out.push({ club: longer, swing: 'smooth', note: `Easy swing if you'd rather not force it` });
@@ -235,39 +235,39 @@ function notesFor(input: ShotInput, pick: Pick, aim: Aim, ctx: PlayerContext): s
   const notes: string[] = [];
   const { head, cross } = windComponents(input.wind);
   if (pick.leaves !== undefined) {
-    notes.push(`Can't get there in one — this leaves about ${Math.round(pick.leaves)}.`);
+    notes.push(`Can't get there in one. This leaves about ${Math.round(pick.leaves)}.`);
     if (input.trouble.includes('short')) notes.push('Trouble short: lay up to a number you like instead of forcing it.');
   }
   if (pick.swing === 'partial' && pick.swingPct !== undefined) {
-    notes.push(pick.swingPct < 0.45 ? 'Short pitch — soft hands, let the loft work.' : 'Controlled partial swing, accelerate through.');
+    notes.push(pick.swingPct < 0.45 ? 'Short pitch: soft hands, let the loft work.' : 'Controlled partial swing, accelerate through.');
   }
-  if (head >= 10) notes.push("Into the wind: swing easy, ball back an inch, keep the finish low — spin makes it balloon.");
-  else if (head <= -8) notes.push('Downwind: less spin, more release — land it short of the target.');
+  if (head >= 10) notes.push("Into the wind: swing easy, ball back an inch, keep the finish low. Spin makes it balloon.");
+  else if (head <= -8) notes.push('Downwind: less spin, more release. Land it short of the target.');
   if (Math.abs(cross) >= 8) notes.push(`Crosswind ${cross > 0 ? 'off the right' : 'off the left'}: start it into the wind and let it drift back.`);
   const lieNote: Partial<Record<ShotInput['lie'], string>> = {
-    'first-cut': 'Flyer risk from the first cut — it may come out hot with less spin. Favor the front.',
+    'first-cut': 'Flyer risk from the first cut. It may come out hot with less spin. Favor the front.',
     rough: 'Rough: grip firmer, steeper swing, expect less spin.',
-    'deep-rough': "Deep rough: priority one is getting it out. Take loft — don't be a hero.",
+    'deep-rough': "Deep rough: priority one is getting it out. Take loft, don't be a hero.",
     bunker: 'Fairway bunker: choke down, ball first, quiet lower body.',
-    hardpan: 'Hardpan: ball back, trap it — the bounce will skip.',
+    hardpan: 'Hardpan: ball back, trap it. The bounce will skip.',
   };
   if (lieNote[input.lie]) notes.push(lieNote[input.lie]!);
   const sideRight = ctx.handedness === 'right';
   const stanceNote: Partial<Record<ShotInput['stance'], string>> = {
-    uphill: 'Uphill lie: shoulders with the slope — it flies higher and shorter.',
-    downhill: 'Downhill lie: swing down the slope — it comes out lower and runs.',
+    uphill: 'Uphill lie: shoulders with the slope. It flies higher and shorter.',
+    downhill: 'Downhill lie: swing down the slope. It comes out lower and runs.',
     'ball-above': `Ball above feet: choke down, it wants to go ${sideRight ? 'left' : 'right'}.`,
     'ball-below': `Ball below feet: sit into it, it wants to go ${sideRight ? 'right' : 'left'}.`,
   };
   if (stanceNote[input.stance]) notes.push(stanceNote[input.stance]!);
   const short = input.trouble.includes('short');
   const long = input.trouble.includes('long');
-  if (short && long) notes.push('Trouble short and long — middle of the green is a win.');
-  else if (short && pick.leaves === undefined) notes.push('Nothing good short — make sure you get there.');
-  else if (long) notes.push('Long is dead — the back edge is your enemy.');
-  if (pick.swing === 'hard') notes.push('Big gap in your bag here — commit to a full, aggressive swing.');
+  if (short && long) notes.push('Trouble short and long. The middle of the green is a win.');
+  else if (short && pick.leaves === undefined) notes.push('Nothing good short. Make sure you get there.');
+  else if (long) notes.push('Long is dead. The back edge is your enemy.');
+  if (pick.swing === 'hard') notes.push('Big gap in your bag here. Commit to a full, aggressive swing.');
   if (aim.yards === 0 && (input.trouble.includes('left') || input.trouble.includes('right'))) {
-    notes.push('Wind and trouble cancel out — aim straight at it.');
+    notes.push('Wind and trouble cancel out. Aim straight at it.');
   }
   return notes;
 }

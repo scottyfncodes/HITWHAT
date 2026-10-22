@@ -121,7 +121,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
           <ul class="gaps" aria-label="Distance gaps">
             {gaps.map((g) => (
               <li key={g.longer.id}>
-                {g.longer.short} → {g.shorter.short}: {Math.round(yardsTo(g.gap, u.distance))} {unit} {g.gap < 4 ? '— these two overlap' : '— big gap, expect choked-down shots'}
+                {g.longer.short} → {g.shorter.short}: {Math.round(yardsTo(g.gap, u.distance))} {unit} {g.gap < 4 ? '(these two overlap)' : '(big gap, expect choked-down shots)'}
               </li>
             ))}
           </ul>
@@ -315,7 +315,7 @@ function ClubDetail({
         </div>
         <div>
           <dt>Recent average</dt>
-          <dd>{stat ? `${Math.round(yardsTo(stat.recent, units.distance))} ${unit}` : '—'}</dd>
+          <dd>{stat ? `${Math.round(yardsTo(stat.recent, units.distance))} ${unit}` : '–'}</dd>
         </div>
         <div>
           <dt>Confidence</dt>

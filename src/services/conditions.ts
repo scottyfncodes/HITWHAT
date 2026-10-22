@@ -22,7 +22,7 @@ export const CONDITIONS_FAILURE_TEXT: Record<ConditionsFailure, string> = {
   unsupported: "This browser can't share location. Enter wind and temperature by hand.",
   denied: 'Location is off for HitWhat. Enter wind by hand, or allow location in Settings › Safari.',
   'position-unavailable': "Couldn't find your position. Enter wind by hand.",
-  offline: "You're offline. Enter wind by hand — the caddie still works.",
+  offline: "You're offline. Enter wind by hand. The caddie still works.",
   timeout: 'Weather took too long. Enter wind by hand.',
   'weather-unavailable': 'Weather service is unavailable. Enter wind by hand.',
 };

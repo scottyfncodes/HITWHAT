@@ -167,7 +167,7 @@ export function SwingTab() {
                   class="swing-row"
                   onClick={async () => setView({ kind: 'result', swing: s, video: await loadVideo(s.id).catch(() => null), unsaved: false })}
                 >
-                  <span class="swing-tempo">{s.analysis.tempo ? `${s.analysis.tempo.ratio.toFixed(1)}:1` : '—'}</span>
+                  <span class="swing-tempo">{s.analysis.tempo ? `${s.analysis.tempo.ratio.toFixed(1)}:1` : '–'}</span>
                   <span class="round-meta">
                     <strong>
                       {s.starred && <Icon name="star" size={14} filled />} {s.analysis.focus.title}
@@ -290,7 +290,7 @@ function SwingResultView({
         <label class="inline-select">
           <span>Club</span>
           <select value={swing.clubId ?? ''} onChange={(e) => onUpdate({ ...swing, clubId: (e.currentTarget as HTMLSelectElement).value || null })} aria-label="Club in this swing">
-            <option value="">—</option>
+            <option value="">–</option>
             {profile.clubs
               .filter((c) => c.inBag)
               .map((c) => (
@@ -462,7 +462,7 @@ function Compare({ a, b, onBack }: { a: SavedSwing; b: SavedSwing; onBack: () =>
                           <small>{m.value}</small>
                         </>
                       ) : (
-                        '—'
+                        '–'
                       )}
                     </td>
                   ))}
