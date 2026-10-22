@@ -269,7 +269,7 @@ export function Conditions({ shot, update, pin, setPin, units: u, profile, reque
             <div class="green-grid">
               <PinPicker value={pin} onChange={setPin} />
               <div>
-                <p class="sub">Trouble — tap where you can't miss</p>
+                <p class="sub">Trouble: tap where you can't miss</p>
                 <TroublePicker value={shot.trouble} onChange={(trouble) => update({ trouble })} />
               </div>
             </div>

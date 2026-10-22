@@ -12,7 +12,7 @@ export function localTake(rec: Recommendation, units: Units): string {
   const club = rec.club.name;
 
   if (rec.leaves !== undefined) {
-    return `${club}, full swing. You can't get there in one — it leaves about ${fmtDistance(rec.leaves, units)} ${unit}.`;
+    return `${club}, full swing. You can't get there in one. It leaves about ${fmtDistance(rec.leaves, units)} ${unit}.`;
   }
 
   const lead = leadFor(rec, club);
@@ -20,7 +20,7 @@ export function localTake(rec: Recommendation, units: Units): string {
   const biggest = [...rows].sort((a, b) => Math.abs(b.shown) - Math.abs(a.shown))[0];
   const why =
     biggest && Math.abs(biggest.shown) >= 3
-      ? ` Plays ${total} ${unit} — ${reasonPhrase(biggest.kind, biggest.shown)}.`
+      ? ` Plays ${total} ${unit}: ${reasonPhrase(biggest.kind, biggest.shown)}.`
       : ` Plays ${total} ${unit}.`;
 
   const aim = rec.aim.yards === 0 ? '' : ` ${aimText(rec.aim, units)}.`;

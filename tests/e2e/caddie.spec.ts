@@ -549,7 +549,7 @@ test.describe('distances and practice', () => {
     await page.getByTestId('sheet-done').click();
     await page.getByTestId('tab-stats').click();
     await page.getByTestId('view-practice').click();
-    await expect(page.getByTestId('ladder-gap')).toHaveText('28 yds gap — no full swing for this');
+    await expect(page.getByTestId('ladder-gap')).toHaveText('28 yds gap, no full swing for this');
     await expect(page.getByTestId('practice-plan')).toContainText('Fill the 28 yds gap');
   });
 });

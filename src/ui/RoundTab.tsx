@@ -60,12 +60,12 @@ function RoundHome({ onOpen }: { onOpen: (id: string) => void }) {
       <section class="tiles">
         <button type="button" class="tile" onClick={() => go('handicap')} data-testid="tile-handicap">
           <span class="stat-label">{profile.officialIndex !== null ? 'Official index' : 'HitWhat estimate'}</span>
-          <span class="stat-value">{profile.officialIndex ?? handicap.estimate ?? '—'}</span>
+          <span class="stat-value">{profile.officialIndex ?? handicap.estimate ?? '–'}</span>
           <span class="stat-sub">{profile.officialIndex !== null ? 'Entered by you' : handicap.estimate !== null ? 'Handicap estimate' : `${handicap.needed} more score${handicap.needed === 1 ? '' : 's'} needed`}</span>
         </button>
         <button type="button" class="tile" onClick={() => go('stats')}>
           <span class="stat-label">Scoring average</span>
-          <span class="stat-value">{stats.scoringAvg !== null ? stats.scoringAvg.toFixed(1) : '—'}</span>
+          <span class="stat-value">{stats.scoringAvg !== null ? stats.scoringAvg.toFixed(1) : '–'}</span>
           <span class="stat-sub">{stats.rounds ? `${stats.rounds} round${stats.rounds === 1 ? '' : 's'}` : 'No rounds yet'}</span>
         </button>
         <button type="button" class="tile tile-wide" onClick={() => go('practice')} data-testid="tile-practice">
@@ -92,7 +92,7 @@ function RoundHome({ onOpen }: { onOpen: (id: string) => void }) {
               return (
                 <li key={r.id}>
                   <button type="button" class="round-row" onClick={() => onOpen(r.id)}>
-                    <span class="round-score">{shown ?? '—'}</span>
+                    <span class="round-score">{shown ?? '–'}</span>
                     <span class="round-meta">
                       <strong>{r.courseName}</strong>
                       <small>
@@ -314,7 +314,7 @@ function ActiveRound({ round, onFinished }: { round: Round; onFinished: (id: str
         <label class="inline-select">
           <span>{par === 3 ? 'Club off the tee' : 'Tee club'}</span>
           <select value={h.teeClub ?? ''} aria-label="Club off the tee" onChange={(e) => patchHole({ teeClub: (e.currentTarget as HTMLSelectElement).value || null })}>
-            <option value="">—</option>
+            <option value="">–</option>
             {bag.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}

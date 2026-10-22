@@ -36,7 +36,7 @@ const target = (drill: DrillId, t: number, u: Units) => (DRILLS[drill].kind === 
 
 /** A session's headline: "67%" or "±3 yds". */
 function scoreText(drill: DrillId, score: number | null, u: Units): string {
-  if (score === null) return '—';
+  if (score === null) return '–';
   if (lowerIsBetter(drill)) return `±${Math.max(0, yardsTo(score, u.distance)).toFixed(1)} ${distanceLabel(u.distance)}`;
   return `${Math.round(score)}%`;
 }
@@ -390,7 +390,7 @@ export function DrillSheet({ drill, onClose }: { drill: DrillId; onClose: () => 
                 Log carry
               </button>
               <button type="button" class="link" onClick={() => setMishits(mishits + 1)}>
-                Mishit — hit another{mishits ? ` (${mishits} so far)` : ''}
+                Mishit? Hit another{mishits ? ` (${mishits} so far)` : ''}
               </button>
               {carry !== null && (toYards(carry, u.distance) < 10 || toYards(carry, u.distance) > 200) && (
                 <p class="error-text" role="alert">

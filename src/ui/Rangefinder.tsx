@@ -228,7 +228,7 @@ function GpsMode({
               </div>
               <div>
                 <dt>Green</dt>
-                <dd>{elevFt === null ? '—' : `${elevFt >= 0 ? '+' : '−'}${Math.abs(Math.round(feetTo(elevFt, units.height)))} ${heightLabel(units.height)} ≈`}</dd>
+                <dd>{elevFt === null ? '–' : `${elevFt >= 0 ? '+' : '−'}${Math.abs(Math.round(feetTo(elevFt, units.height)))} ${heightLabel(units.height)} ≈`}</dd>
               </div>
               <div>
                 <dt>Wind</dt>
@@ -268,7 +268,7 @@ function GpsMode({
               ? 'Loading course map…'
               : mapErr
                 ? `${OSM_FAILURE_TEXT[mapErr]} You can save a pin spot for each hole when you reach the green.`
-                : 'No mapped greens near you. When you reach the green, save its spot below — next time HitWhat measures to it, even offline. Or try Flag size.'}
+                : 'No mapped greens near you. When you reach the green, save its spot below. Next time HitWhat measures to it, even offline. Or try Flag size.'}
           </p>
         )}
 

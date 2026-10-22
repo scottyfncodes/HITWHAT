@@ -49,7 +49,7 @@ interface StepperProps {
 export function Stepper({ label, value, onChange, step, min, max, unit, describe, nullable, seed = 0 }: StepperProps) {
   const clamp = (v: number) => Math.min(max, Math.max(min, v));
   const bump = (dir: 1 | -1) => onChange(clamp(Math.round((value ?? seed) + dir * step)));
-  const text = describe ? describe(value) : value === null ? '—' : `${value} ${unit}`;
+  const text = describe ? describe(value) : value === null ? '–' : `${value} ${unit}`;
   return (
     <div class="stepper" role="group" aria-label={label}>
       <button type="button" class="step" aria-label={`Decrease ${label}`} onClick={() => bump(-1)} disabled={value !== null && value <= min}>

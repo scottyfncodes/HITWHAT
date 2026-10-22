@@ -14,9 +14,9 @@ const VERDICT: Record<Verdict, { text: string; tone: Tone }> = {
   watch: { text: 'Watch', tone: 'watch' },
 };
 
-const f1 = (n: number | null, suffix = '') => (n === null ? '—' : `${n.toFixed(1)}${suffix}`);
-const pct = (n: number | null) => (n === null ? '—' : `${Math.round(n)}%`);
-const signed = (n: number | null) => (n === null ? '—' : `${n > 0 ? '+' : ''}${n.toFixed(2)}`);
+const f1 = (n: number | null, suffix = '') => (n === null ? '–' : `${n.toFixed(1)}${suffix}`);
+const pct = (n: number | null) => (n === null ? '–' : `${Math.round(n)}%`);
+const signed = (n: number | null) => (n === null ? '–' : `${n > 0 ? '+' : ''}${n.toFixed(2)}`);
 
 export function StatsTab({ view = 'game' }: { view?: 'game' | 'practice' }) {
   return (
@@ -129,11 +129,11 @@ function GameView() {
 
       <section class="stat-grid">
         <Stat label="Scoring avg" value={f1(s.scoringAvg)} sub={`${s.rounds} round${s.rounds === 1 ? '' : 's'}`} testid="stat-avg" />
-        <Stat label="Handicap" value={profile.officialIndex ?? handicap.estimate ?? '—'} sub={profile.officialIndex !== null ? 'Official' : 'Estimate'} />
+        <Stat label="Handicap" value={profile.officialIndex ?? handicap.estimate ?? '–'} sub={profile.officialIndex !== null ? 'Official' : 'Estimate'} />
         <Stat label="Fairways" value={pct(s.fairwayPct)} />
         <Stat label="Greens" value={pct(s.girPct)} sub={s.girPerRound !== null ? `${s.girPerRound.toFixed(1)} per round` : undefined} />
         <Stat label="Putts / round" value={f1(s.puttsPerRound)} />
-        <Stat label="Putts per GIR" value={s.puttsPerGir !== null ? s.puttsPerGir.toFixed(2) : '—'} />
+        <Stat label="Putts per GIR" value={s.puttsPerGir !== null ? s.puttsPerGir.toFixed(2) : '–'} />
         <Stat label="Penalties" value={f1(s.penaltiesPerRound)} sub="per round" />
         <Stat label="3-putts" value={f1(s.threePuttsPerRound)} sub="per round" />
       </section>
@@ -154,13 +154,13 @@ function GameView() {
                 <th scope="row">Par 3s</th>
                 <td>{signed(s.parAvg[3])}</td>
                 <th scope="row">Front 9</th>
-                <td>{s.front9 === null ? '—' : `${s.front9 > 0 ? '+' : ''}${s.front9.toFixed(1)}`}</td>
+                <td>{s.front9 === null ? '–' : `${s.front9 > 0 ? '+' : ''}${s.front9.toFixed(1)}`}</td>
               </tr>
               <tr>
                 <th scope="row">Par 4s</th>
                 <td>{signed(s.parAvg[4])}</td>
                 <th scope="row">Back 9</th>
-                <td>{s.back9 === null ? '—' : `${s.back9 > 0 ? '+' : ''}${s.back9.toFixed(1)}`}</td>
+                <td>{s.back9 === null ? '–' : `${s.back9 > 0 ? '+' : ''}${s.back9.toFixed(1)}`}</td>
               </tr>
               <tr>
                 <th scope="row">Par 5s</th>
@@ -190,7 +190,7 @@ function GameView() {
               const t = r.source === 'app' ? roundTotals(r) : null;
               return (
                 <li key={r.id}>
-                  <strong>{roundScore(r) ?? t?.strokes ?? '—'}</strong> · {r.courseName} · {shortDate(r.date)}
+                  <strong>{roundScore(r) ?? t?.strokes ?? '–'}</strong> · {r.courseName} · {shortDate(r.date)}
                   {t && t.puttsHoles ? ` · ${t.putts} putts` : ''}
                   {t && t.penalties ? ` · ${t.penalties} pen.` : ''}
                 </li>
