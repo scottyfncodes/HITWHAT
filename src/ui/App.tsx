@@ -17,6 +17,7 @@ import { Icon } from './kit';
 import { Rangefinder } from './Rangefinder';
 import { RoundTab } from './RoundTab';
 import { Settings } from './Settings';
+import { useWakeLock } from './useWakeLock';
 import { StatsTab } from './StatsTab';
 import { SwingTab } from './SwingTab';
 import { Welcome } from './Welcome';
@@ -91,6 +92,8 @@ export function App() {
   const learned = useMemo(() => learnedClubIds(profile.clubs, stats, profile.learnFromShots), [profile.clubs, stats, profile.learnFromShots]);
   const handicap = useMemo(() => handicapReport(golf.rounds), [golf.rounds]);
   const active = activeRound(golf);
+  // Keep the screen on during a round so the scorecard and yardages are there between shots.
+  useWakeLock(active !== null && profile.keepAwake && profile.onboarded);
 
   const state: AppState = {
     profile,

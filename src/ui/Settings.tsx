@@ -4,13 +4,15 @@ import { findGapIssues } from '../core/clubs';
 import { MIN_SHOTS_TO_LEARN, learnableClub, type ShotRecord } from '../core/shots';
 import type { Club } from '../core/types';
 import { IMPERIAL, METRIC, distanceLabel, feetTo, heightLabel, toFeet, toYards, yardsTo } from '../core/units';
-import { buildBackup, parseBackup } from '../state/backup';
+import { parseBackup } from '../state/backup';
 import { newId } from '../state/golf';
 import { defaultProfile } from '../state/profile';
-import { clearSwings, listSwings, saveSwing, storageEstimate } from '../state/swings';
+import { clearSwings, saveSwing, storageEstimate } from '../state/swings';
 import { NumberField, Segmented } from './controls';
 import { useApp } from './context';
-import { Badge, Sheet } from './kit';
+import { Badge, Sheet, longDate } from './kit';
+import { useBackup } from './useBackup';
+import { wakeLockSupported } from './useWakeLock';
 import { Wordmark } from './Wordmark';
 
 export function Settings({ onClose }: { onClose: () => void }) {
@@ -19,6 +21,8 @@ export function Settings({ onClose }: { onClose: () => void }) {
   const [open, setOpen] = useState<string | null>(null);
   const [usage, setUsage] = useState<string | null>(null);
   const [restoreMsg, setRestoreMsg] = useState<string | null>(null);
+  const [persisted, setPersisted] = useState<boolean | null>(null);
+  const backup = useBackup();
   const set = (patch: Partial<typeof profile>) => setProfile((p) => ({ ...p, ...patch }));
   const setClub = (id: string, patch: Partial<Club>) => setProfile((p) => ({ ...p, clubs: p.clubs.map((c) => (c.id === id ? { ...c, ...patch } : c)) }));
   const gaps = findGapIssues(profile.clubs.filter((c) => c.carry > 0));
@@ -26,22 +30,22 @@ export function Settings({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     storageEstimate().then((e) => e && setUsage(`${(e.usage / 1e6).toFixed(1)} MB used on this phone`));
+    navigator.storage
+      ?.persisted?.()
+      .then(setPersisted)
+      .catch(() => {});
   }, []);
 
   const exportBackup = async () => {
-    const swings = await listSwings().catch(() => []);
-    const blob = new Blob([JSON.stringify(buildBackup(profile, golf, swings))], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `hitwhat-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    const outcome = await backup.save();
+    setRestoreMsg(outcome === 'cancelled' ? null : outcome === 'shared' ? 'Backup saved.' : 'Backup file created. Keep it in Files or iCloud Drive.');
   };
 
   const importBackup = async (file: File) => {
     const r = parseBackup(await file.text());
     if (!r.ok) return setRestoreMsg(r.reason);
-    setProfile({ ...r.profile, onboarded: true });
+    // The data on this phone now matches that file, so it counts as backed up as of when it was made.
+    setProfile({ ...r.profile, onboarded: true, lastBackupAt: r.exportedAt ?? Date.now(), backupSnoozeUntil: null });
     updateGolf(() => r.golf);
     for (const s of r.swings) await saveSwing(s, null).catch(() => {});
     setRestoreMsg(`Restored ${r.golf.rounds.length} rounds, ${r.golf.shots.length} shots, ${r.golf.practice.length} practice sessions and ${r.swings.length} swing analyses.`);
@@ -142,6 +146,20 @@ export function Settings({ onClose }: { onClose: () => void }) {
           columns={3}
         />
         <p class="fine">Sun mode is the easiest to read in bright light.</p>
+        <label class="switch">
+          <input
+            type="checkbox"
+            checked={profile.keepAwake}
+            onChange={(e) => set({ keepAwake: (e.currentTarget as HTMLInputElement).checked })}
+            data-testid="keep-awake"
+          />
+          <span>Keep the screen on during a round</span>
+        </label>
+        <p class="fine">
+          {wakeLockSupported()
+            ? 'The screen stays on while a round is in progress, so your card and yardages are there between shots. It uses more battery.'
+            : 'This browser can’t keep the screen on. On iPhone, update iOS and open HitWhat from the Home Screen.'}
+        </p>
         <Segmented
           label="Unit system"
           value={u.distance === 'm' ? 'metric' : 'imperial'}
@@ -223,8 +241,23 @@ export function Settings({ onClose }: { onClose: () => void }) {
           <li>Rounds, scores, shots and settings are stored in this browser on this phone. There’s no account and no server copy.</li>
           <li>Swing videos stay on this phone and are analyzed on it. They are never uploaded.</li>
           <li>Location is used only on your phone, to measure distances and find course maps. To load a course map, HitWhat sends your rough position to OpenStreetMap’s free map service; for live weather and terrain height, to Open-Meteo.</li>
+          <li>To count visits, HitWhat loads HaveAnApp Pulse. It records page views and a random visitor ID kept on this phone. No cookies, and none of your rounds, scores, swings or location.</li>
           <li>Add HitWhat to your Home Screen (Share › Add to Home Screen). Safari can clear data for websites you haven’t opened in a while; Home Screen apps keep theirs.</li>
         </ul>
+        <p class="backup-status" data-testid="backup-status">
+          {profile.lastBackupAt === null
+            ? golf.rounds.length
+              ? 'No backup saved yet.'
+              : 'No backup saved yet. There’s nothing to back up until you score a round.'
+            : `Last backup ${longDate(profile.lastBackupAt)}${backup.status.unsaved ? `, ${backup.status.unsaved} round${backup.status.unsaved === 1 ? '' : 's'} since` : ', nothing new since'}.`}
+        </p>
+        {persisted !== null && (
+          <p class="fine" data-testid="persisted">
+            {persisted
+              ? 'This browser has agreed to keep HitWhat’s data rather than clear it to free space.'
+              : 'This browser hasn’t promised to keep HitWhat’s data. Add it to your Home Screen and keep a backup.'}
+          </p>
+        )}
         {usage && <p class="fine">{usage}.</p>}
         <div class="row">
           <button type="button" class="btn ghost" onClick={exportBackup} data-testid="export-backup">
@@ -235,7 +268,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
             <input type="file" accept="application/json,.json" hidden onChange={(e) => { const f = (e.currentTarget as HTMLInputElement).files?.[0]; if (f) void importBackup(f); }} />
           </label>
         </div>
-        <p class="fine">Backups include rounds, courses, shots, practice sessions, settings and swing analyses (not the videos). Keep one in Files or iCloud Drive to move to a new phone.</p>
+        <p class="fine">Backups include rounds, courses, shots, practice sessions, settings and swing analyses (not the videos). On iPhone, Export opens the share sheet: choose Save to Files. Keep one in Files or iCloud Drive to move to a new phone.</p>
         {restoreMsg && (
           <p class="banner" role="status">
             {restoreMsg}
@@ -265,7 +298,7 @@ export function Settings({ onClose }: { onClose: () => void }) {
           </div>
         ) : (
           <div class="row">
-            <button type="button" class="btn ghost" onClick={() => setProfile((p) => ({ ...defaultProfile(), onboarded: true, officialIndex: p.officialIndex }))}>
+            <button type="button" class="btn ghost" onClick={() => setProfile((p) => ({ ...defaultProfile(), onboarded: true, officialIndex: p.officialIndex, lastBackupAt: p.lastBackupAt }))}>
               Reset bag and settings
             </button>
             <button type="button" class="btn ghost" onClick={() => setConfirmReset(true)}>

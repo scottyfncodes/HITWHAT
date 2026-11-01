@@ -8,7 +8,8 @@ personal caddie in one mobile web app, built for iPhone Safari and the Home Scre
 - **Domain:** https://hitwhat.com/ is the canonical home (set in the page metadata). Until the custom domain is
   pointed at Pages, the GitHub Pages URL above is the live app. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 - **Free and private:** browser APIs, open-source libraries and free, keyless data only. No account. Rounds and
-  swing videos stay on the phone.
+  swing videos stay on the phone. Visits are counted with HaveAnApp Pulse (page views and a random visitor ID kept
+  on the phone; no cookies, and none of your golf data).
 
 ## The loop
 
@@ -25,7 +26,7 @@ understanding, and the caddie's call is the advice. Every round makes the next r
 | **Stats** | "Your game right now" (putting, approach, driving, penalties: good / OK / watch, improving / slipping), the single biggest opportunity in strokes, then scoring average, FIR, GIR, putts, putts per GIR, penalties, par-3/4/5 and front/back scoring, score trend and club distances. |
 | **Swing** | Down-the-line or face-on positioning guide, hands-free recording (countdown + beeps) or a video from Photos, slow-motion review, on-device pose analysis (MediaPipe), one thing to work on, key frames with the skeleton, save, compare with your previous or best swing, recurring tendencies. |
 | **Handicap** | A HitWhat estimate from your rounds (World Handicap System arithmetic), shown separately from your official Handicap Index (which you can type in). Differentials, which scores count, trend, course handicap, a plain-English explanation, and exactly what's missing when there isn't enough data. |
-| **Settings** | Your bag: typical carry, tracked average, confidence and notes per club, plus "let the caddie use my tracked averages". Units, handedness, theme (Sun mode for bright light), flagstick height and calibration, where your data lives, backup and restore. |
+| **Settings** | Your bag: typical carry, tracked average, confidence and notes per club, plus "let the caddie use my tracked averages". Units, handedness, theme (Sun mode for bright light), keep the screen on during a round, flagstick height and calibration, where your data lives, when you last backed up, and backup (the iPhone share sheet: Save to Files) and restore. A card on the Round home asks for a backup when finished rounds aren't in one yet. |
 
 ## Honest by design
 
