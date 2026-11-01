@@ -745,3 +745,83 @@ test.describe('mobile layout', () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), 'practice').toBeLessThanOrEqual(0);
   });
 });
+
+test.describe('keeping your data safe', () => {
+  test('reminds you to back up finished rounds, saves a file, then goes quiet', async ({ page }) => {
+    await seed(page, {}, { 'caddaie.rounds': threePuttRounds(2) });
+    await page.goto('./');
+    const card = page.getByTestId('backup-reminder');
+    await expect(card).toContainText('Your 2 rounds live only in this browser');
+    const [download] = await Promise.all([page.waitForEvent('download'), page.getByTestId('backup-now').click()]);
+    expect(download.suggestedFilename()).toMatch(/^hitwhat-backup-\d{4}-\d{2}-\d{2}\.json$/);
+    const json = JSON.parse(Buffer.concat(await (await download.createReadStream()).toArray()).toString());
+    expect(json.golf.rounds).toHaveLength(2);
+    await expect(card).toHaveCount(0);
+    await page.reload();
+    await expect(page.getByTestId('backup-reminder')).toHaveCount(0);
+    await page.getByTestId('open-settings').click();
+    await expect(page.getByTestId('backup-status')).toContainText('Last backup');
+    await expect(page.getByTestId('backup-status')).toContainText('nothing new since');
+  });
+
+  test('"Later" hides the reminder', async ({ page }) => {
+    await seed(page, {}, { 'caddaie.rounds': threePuttRounds(1) });
+    await page.goto('./');
+    await page.getByTestId('backup-later').click();
+    await expect(page.getByTestId('backup-reminder')).toHaveCount(0);
+    await page.reload();
+    await expect(page.getByTestId('backup-reminder')).toHaveCount(0);
+  });
+
+  test('no reminder before there is a round to lose', async ({ page }) => {
+    await seed(page);
+    await page.goto('./');
+    await expect(page.getByTestId('start-round')).toBeVisible();
+    await expect(page.getByTestId('backup-reminder')).toHaveCount(0);
+  });
+
+  test('keeps the screen on during a round, and lets you turn that off', async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as unknown as { __locks: { held: number; requests: number } };
+      w.__locks = { held: 0, requests: 0 };
+      Object.defineProperty(navigator, 'wakeLock', {
+        configurable: true,
+        value: {
+          request: async () => {
+            w.__locks.requests++;
+            w.__locks.held++;
+            let released = false;
+            return {
+              get released() {
+                return released;
+              },
+              release: async () => {
+                if (!released) w.__locks.held--;
+                released = true;
+              },
+            };
+          },
+        },
+      });
+    });
+    await seed(page);
+    await page.goto('./');
+    const locks = () => page.evaluate(() => (window as unknown as { __locks: { held: number } }).__locks.held);
+    expect(await locks()).toBe(0);
+    await page.getByTestId('start-round').click();
+    await page.getByTestId('course-name').fill('Short Course');
+    await page.getByTestId('start-round-go').click();
+    await expect.poll(locks).toBe(1);
+    await page.getByTestId('open-settings').click();
+    await page.getByTestId('keep-awake').uncheck();
+    await expect.poll(locks).toBe(0);
+  });
+
+  test('says how visits are counted', async ({ page }) => {
+    await seed(page);
+    await page.goto('./');
+    await page.getByTestId('open-settings').click();
+    await expect(page.getByTestId('privacy')).toContainText('HaveAnApp Pulse');
+    await expect(page.getByTestId('privacy')).toContainText('No cookies');
+  });
+});

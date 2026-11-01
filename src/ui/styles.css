@@ -3968,3 +3968,17 @@ details.card:not([open]) {
 .banner .row {
   margin-top: 10px;
 }
+
+/* Backup reminder on the Round home: a watch-toned card, since rounds are at risk. */
+.backup-reminder {
+  border: 1px solid color-mix(in srgb, var(--watch) 40%, transparent);
+}
+
+.backup-reminder .row {
+  margin-top: 12px;
+}
+
+.backup-status {
+  margin: 12px 0 4px;
+  font-weight: 600;
+}

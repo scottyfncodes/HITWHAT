@@ -22,6 +22,7 @@ import {
 import { playerStats } from '../core/stats';
 import { distanceLabel } from '../core/units';
 import { AddScoreSheet } from './AddScore';
+import { BackupReminder } from './BackupReminder';
 import { useApp } from './context';
 import { Empty, Icon, longDate, shortDate } from './kit';
 import { RoundSummaryView } from './RoundSummary';
@@ -56,6 +57,8 @@ function RoundHome({ onOpen }: { onOpen: (id: string) => void }) {
           Add a past score
         </button>
       </section>
+
+      <BackupReminder />
 
       <section class="tiles">
         <button type="button" class="tile" onClick={() => go('handicap')} data-testid="tile-handicap">

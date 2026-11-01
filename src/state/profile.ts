@@ -31,6 +31,12 @@ export interface Profile {
   /** Optional notes per club id. */
   clubNotes: Record<string, string>;
   onboarded: boolean;
+  /** When the golfer last saved a backup file (or restored one). Null if never. */
+  lastBackupAt: number | null;
+  /** "Later" on the backup reminder hides it until this time. */
+  backupSnoozeUntil: number | null;
+  /** Keep the screen on while a round is in progress. */
+  keepAwake: boolean;
 }
 
 export const defaultProfile = (): Profile => ({
@@ -47,6 +53,9 @@ export const defaultProfile = (): Profile => ({
   flagFt: 7,
   clubNotes: {},
   onboarded: false,
+  lastBackupAt: null,
+  backupSnoozeUntil: null,
+  keepAwake: true,
 });
 
 export const defaultSituation = (): ShotInput => ({
@@ -122,6 +131,9 @@ export function sanitizeProfile(raw: unknown): Profile {
     flagFt: raw.flagFt === 8 ? 8 : 7,
     clubNotes: sanitizeNotes(raw.clubNotes),
     onboarded: raw.onboarded === true,
+    lastBackupAt: maybeNum(raw.lastBackupAt, 0, 4102444800000),
+    backupSnoozeUntil: maybeNum(raw.backupSnoozeUntil, 0, 4102444800000),
+    keepAwake: raw.keepAwake !== false,
   };
 }
 
