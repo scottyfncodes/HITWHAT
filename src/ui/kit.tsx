@@ -191,7 +191,7 @@ export function Empty({ icon, title, children }: { icon: IconName; title: string
       <span class="empty-icon">
         <Icon name={icon} size={28} />
       </span>
-      <h3>{title}</h3>
+      <h2>{title}</h2>
       {children}
     </div>
   );
