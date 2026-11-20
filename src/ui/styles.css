@@ -501,6 +501,10 @@ label:active,
   transform: scale(0.97);
 }
 
+details.card > summary:active {
+  opacity: 0.7;
+}
+
 @media (hover: hover) {
   button:hover:not(:disabled),
   a[href]:hover,
