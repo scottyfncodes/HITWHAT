@@ -152,6 +152,8 @@ export function App() {
         </header>
 
         <main class="screen" id="main">
+          {/* Round and Swing open on their own visible h1; the other tabs get one for screen readers. */}
+          {(tab === 'caddie' || tab === 'stats' || tab === 'practice' || tab === 'handicap') && <h1 class="visually-hidden">{TAB_META[tab].label}</h1>}
           {tab === 'round' && <RoundTab />}
           {tab === 'caddie' && <CaddieTab />}
           {(tab === 'stats' || tab === 'practice') && <StatsTab view={tab === 'practice' ? 'practice' : 'game'} />}

@@ -8,7 +8,7 @@
   --line: #26322b;
   --text: #f2f4ef;
   --text-2: #a9b5ad;
-  --text-3: #7c8a81;
+  --text-3: #87958c;
   --accent: #5fd38d;
   --accent-ink: #062112;
   --accent-soft: rgb(95 211 141 / 0.14);
@@ -36,13 +36,13 @@
     --line: #d9ddd4;
     --text: #0c140f;
     --text-2: #46534b;
-    --text-3: #67756c;
-    --accent: #12804a;
+    --text-3: #5c6a61;
+    --accent: #0e7442;
     --accent-ink: #ffffff;
-    --accent-soft: rgb(18 128 74 / 0.1);
+    --accent-soft: rgb(14 116 66 / 0.1);
     --flag: #d99a00;
     --green: #cfe8d6;
-    --good: #12804a;
+    --good: #0e7442;
     --ok: #46534b;
     --watch: #9a5f00;
     --bad: #c0362c;
@@ -58,13 +58,13 @@
   --line: #d9ddd4;
   --text: #0c140f;
   --text-2: #46534b;
-  --text-3: #67756c;
-  --accent: #12804a;
+  --text-3: #5c6a61;
+  --accent: #0e7442;
   --accent-ink: #ffffff;
-  --accent-soft: rgb(18 128 74 / 0.1);
+  --accent-soft: rgb(14 116 66 / 0.1);
   --flag: #d99a00;
   --green: #cfe8d6;
-  --good: #12804a;
+  --good: #0e7442;
   --ok: #46534b;
   --watch: #9a5f00;
   --bad: #c0362c;
@@ -255,9 +255,20 @@ p {
 
 .stack {
   display: grid;
-  gap: 14px;
+  gap: 16px;
   align-content: start;
   min-width: 0;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .topbar {
+    position: static;
+  }
+
+  .tab {
+    min-height: 44px;
+    padding: 2px 0;
+  }
 }
 
 /* ---------- Type ---------- */
@@ -324,7 +335,7 @@ details.card > summary {
   justify-content: space-between;
   align-items: center;
   gap: 10px;
-  min-height: 28px;
+  min-height: 44px;
   cursor: pointer;
 }
 
@@ -464,6 +475,46 @@ details.card > summary .muted {
 
 .btn.starred {
   color: var(--flag);
+}
+
+/* Every tap answers at once: one pressed tone for every control, a quiet tone shift under a mouse.
+   No transition on the tone, so the press shows on the first frame. */
+.btn,
+.icon-btn,
+.round-pill,
+.cond-chip {
+  transition: transform 0.08s ease-out;
+}
+
+button:active:not(:disabled),
+a[href]:active,
+summary:active,
+label:active,
+[role='button']:active {
+  filter: brightness(0.9);
+}
+
+.btn:active:not(:disabled),
+.icon-btn:active,
+.round-pill:active,
+.cond-chip:active {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) {
+  button:hover:not(:disabled),
+  a[href]:hover,
+  summary:hover,
+  label:hover,
+  [role='button']:hover,
+  input:hover:not(:disabled),
+  select:hover:not(:disabled) {
+    filter: brightness(0.95);
+  }
+
+  .btn.primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
 }
 
 .link {
@@ -795,7 +846,7 @@ select.text-input,
   border-radius: var(--radius);
 }
 
-.empty h3 {
+.empty h2 {
   font-size: 19px;
 }
 
@@ -3104,7 +3155,7 @@ select.text-input,
 }
 
 .bag-more small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-3);
 }
 
@@ -3240,7 +3291,7 @@ details.card:not([open]) {
 }
 
 .ladder-club small {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 650;
   color: var(--text-3);
   white-space: nowrap;
@@ -3590,7 +3641,7 @@ details.card:not([open]) {
 }
 
 .cond-chip small {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;

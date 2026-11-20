@@ -58,7 +58,7 @@ export function HandicapTab() {
                 ? 'No handicap yet? Add 3 scores with the course rating and slope, and HitWhat will estimate one.'
                 : `Add ${rep.needed} more score${rep.needed === 1 ? '' : 's'} with course rating and slope to get an estimate.`}
             </p>
-            <div class="progress-dots" aria-label={`${total} of 3 scores`}>
+            <div class="progress-dots" role="img" aria-label={`${total} of 3 scores`}>
               {[0, 1, 2].map((i) => (
                 <span key={i} class={i < total ? 'on' : ''} />
               ))}
