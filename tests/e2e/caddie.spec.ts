@@ -747,6 +747,27 @@ test.describe('mobile layout', () => {
 });
 
 test.describe('keeping your data safe', () => {
+  test('a drill is on the phone the moment the screen says it is saved', async ({ page }) => {
+    await seed(page);
+    await page.goto('./#practice');
+    await page.getByRole('button', { name: 'Start Lag putting' }).click();
+    await page.getByTestId('drill-start').click();
+    for (let i = 0; i < 9; i++) await page.getByTestId('out-in').click();
+    // Read storage in the same instant "Saved" reaches the screen: closing the app then must not lose it.
+    const stored = await page.evaluate(
+      () =>
+        new Promise<number>((resolve) => {
+          new MutationObserver((_, mo) => {
+            if (!document.querySelector('[data-testid=drill-saved]')) return;
+            mo.disconnect();
+            resolve(JSON.parse(localStorage.getItem('caddaie.practice') ?? '[]').length);
+          }).observe(document.body, { childList: true, subtree: true });
+          document.querySelector<HTMLButtonElement>('[data-testid=drill-save]')!.click();
+        }),
+    );
+    expect(stored).toBe(1);
+  });
+
   test('reminds you to back up finished rounds, saves a file, then goes quiet', async ({ page }) => {
     await seed(page, {}, { 'caddaie.rounds': threePuttRounds(2) });
     await page.goto('./');

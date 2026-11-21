@@ -1,0 +1,15 @@
+{
+  "license": "LicenseRef-Project-Owned",
+  "attribution": null,
+  "source": {
+    "type": "original",
+    "artwork": "scripts/icon.svg",
+    "generated_by": "scripts/build-icons.mjs",
+    "variant": "512 px maskable PNG: scripts/icon.svg scaled into the central 80% safe zone",
+    "history": [
+      "bb0bc57",
+      "55198f6"
+    ]
+  },
+  "note": "The HitWhat app icon, drawn for this repository from plain SVG shapes (flagstick, flag, ball, green) and a question mark set in the system Helvetica Neue / Arial font. No third-party artwork or images. The project declares no licence for reuse (package.json: UNLICENSED)."
+}
