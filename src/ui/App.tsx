@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'preact/hooks';
 import { handicapReport } from '../core/handicap';
 import { roundTotals, toParText, holeNumber } from '../core/round';
 import { clubStats, effectiveClubs, learnedClubIds } from '../core/shots';
@@ -51,13 +51,15 @@ export function App() {
   const [drill, setDrill] = useState<DrillId | null>(null);
   const [storageOk, setStorageOk] = useState(storage !== null);
 
-  useEffect(() => {
+  // Persist before the browser paints, so anything the screen calls saved ("Saved to your practice log",
+  // a finished hole) is already on the phone if the app is closed in the very next frame.
+  useLayoutEffect(() => {
     if (!saveProfile(profile, storage)) setStorageOk(false);
   }, [profile, storage]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!saveGolf(golf, storage)) setStorageOk(false);
   }, [golf, storage]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     saveSituation(shot, storage);
   }, [shot, storage]);
   useEffect(() => {
